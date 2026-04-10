@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMPI AI Readiness Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    font-feature-settings: "ss01", "ss03", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  /* ── Password gate ── */
+  #gate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #gate .gate-box {
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+  #gate h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.2rem;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+  }
+  #gate h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  #gate .subtitle {
+    font-size: 0.85rem;
+    color: var(--stone);
+    margin-bottom: 36px;
+  }
+  #gate input[type="password"] {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    text-align: center;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #gate input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+  #gate .gate-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 14px 44px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  #gate .gate-btn:hover { background: var(--ink); color: var(--cream); }
+  #gate .gate-error {
+    color: var(--accent);
+    font-size: 0.82rem;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ── Survey form ── */
+  #survey { display: none; }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  #survey h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: clamp(2.0rem, 5vw, 2.8rem);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin-bottom: 12px;
+  }
+  #survey h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  #survey .lede {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 30, "SOFT" 50, "wght" 380;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--stone);
+    margin-bottom: 48px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--ink);
+    margin-bottom: 40px;
+  }
+
+  .question {
+    margin-bottom: 32px;
+  }
+  .question > label {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 400;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .question .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 10px;
+  }
+  .required::after { content: " *"; color: var(--accent); font-size: 0.85em; }
+
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .checkbox-group label, .radio-group label {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    font-size: 0.92rem;
+    color: var(--stone);
+    padding: 5px 0;
+    cursor: pointer;
+  }
+  .checkbox-group input, .radio-group input {
+    margin-right: 10px;
+    accent-color: var(--accent);
+  }
+
+  .range-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .range-wrap input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+  }
+  .range-wrap .val {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 400;
+    font-size: 1.4rem;
+    color: var(--accent);
+    min-width: 24px;
+    text-align: center;
+  }
+  .range-wrap span {
+    font-size: 0.78rem;
+    color: var(--warm);
+  }
+
+  .other-input {
+    margin-top: 6px;
+    margin-left: 26px;
+    width: calc(100% - 26px);
+  }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    text-align: center;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: wait; }
+
+  /* ── Results page ── */
+  #results { display: none; }
+  #results .tier-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 1.8rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  #results .tier-desc {
+    font-size: 0.95rem;
+    color: var(--stone);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .status-msg {
+    font-size: 0.82rem;
+    color: var(--warm);
+    border-top: 0.5px solid var(--rule);
+    padding-top: 20px;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  .status-msg.warning {
+    color: var(--accent);
+  }
+  .fallback-box {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+  .fallback-box pre {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Inter', monospace;
+    margin-bottom: 12px;
+  }
+  .copy-btn {
+    display: inline-block;
+    padding: 10px 28px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .copy-btn:hover { background: var(--ink); color: var(--cream); }
+
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PASSWORD GATE ── -->
+<div id="gate">
+  <div class="gate-box">
+    <h1>AI Readiness <em>Assessment</em></h1>
+    <p class="subtitle">GMPI Workshop -- April 15, 2026</p>
+    <input type="password" id="pw" placeholder="Enter access code" autocomplete="off">
+    <br>
+    <button class="gate-btn" onclick="checkPw()">Enter</button>
+    <p class="gate-error" id="gate-error">Incorrect code. Please try again.</p>
+  </div>
+</div>
+
+<!-- ── SURVEY ── -->
+<div id="survey" class="container">
+  <div class="eyebrow">Pre-Workshop Assessment</div>
+  <h1>Where are you in your <em>AI journey?</em></h1>
+  <p class="lede">Help us understand how you currently use AI so we can tailor the April 15 workshop to you.</p>
+  <hr class="divider">
+
+  <form id="form">
+    <div class="question">
+      <label class="required">Your Name</label>
+      <input type="text" name="name" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Department / Role</label>
+      <input type="text" name="department" required>
+    </div>
+
+    <div class="question">
+      <label class="required">How often do you use AI tools?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="frequency" value="Never" required> Never</label>
+        <label><input type="radio" name="frequency" value="A few times"> A few times total</label>
+        <label><input type="radio" name="frequency" value="Weekly"> Weekly</label>
+        <label><input type="radio" name="frequency" value="Daily"> Daily</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Which AI tools have you used?</label>
+      <p class="hint">Check all that apply</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="tools" value="ChatGPT"> ChatGPT</label>
+        <label><input type="checkbox" name="tools" value="Claude"> Claude</label>
+        <label><input type="checkbox" name="tools" value="Gemini"> Gemini</label>
+        <label><input type="checkbox" name="tools" value="Perplexity"> Perplexity</label>
+        <label><input type="checkbox" name="tools" value="Copilot"> Copilot</label>
+        <label><input type="checkbox" name="tools" value="None"> None</label>
+        <label><input type="checkbox" name="tools" value="Other"> Other</label>
+      </div>
+      <input type="text" name="tools_other" class="other-input" placeholder="If other, specify..." style="display:none">
+    </div>
+
+    <div class="question">
+      <label class="required">Do you pay for any AI subscription?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="subscription" value="No, free only" required> No, free only</label>
+        <label><input type="radio" name="subscription" value="Yes, personal"> Yes, I pay personally</label>
+        <label><input type="radio" name="subscription" value="Yes, company-provided"> Yes, company-provided</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Have you ever hit a usage limit on an AI tool?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="limit" value="Never"> Never</label>
+        <label><input type="radio" name="limit" value="Yes, occasionally"> Yes, occasionally</label>
+        <label><input type="radio" name="limit" value="Yes, frequently"> Yes, frequently</label>
+        <label><input type="radio" name="limit" value="Not sure"> Not sure</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>What do you use AI for at work?</label>
+      <p class="hint">Check all that apply</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="use_for" value="Search / research"> Search / research</label>
+        <label><input type="checkbox" name="use_for" value="Writing / editing"> Writing / editing</label>
+        <label><input type="checkbox" name="use_for" value="Data analysis"> Data analysis</label>
+        <label><input type="checkbox" name="use_for" value="Summarizing documents"> Summarizing documents</label>
+        <label><input type="checkbox" name="use_for" value="Creating reports"> Creating reports</label>
+        <label><input type="checkbox" name="use_for" value="Nothing yet"> Nothing yet</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Have you ever uploaded a work document to an AI tool?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="upload" value="Never"> Never</label>
+        <label><input type="radio" name="upload" value="Once or twice"> Once or twice</label>
+        <label><input type="radio" name="upload" value="Regularly"> Regularly</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Have you ever created something reusable with AI?</label>
+      <p class="hint">e.g., a saved prompt, a template, a workflow you repeat</p>
+      <div class="radio-group">
+        <label><input type="radio" name="reusable" value="No"> No</label>
+        <label><input type="radio" name="reusable" value="Yes"> Yes</label>
+      </div>
+      <input type="text" name="reusable_what" class="other-input" placeholder="What did you create?" style="display:none; margin-top:8px;">
+    </div>
+
+    <div class="question">
+      <label class="required">Rate yourself: "I could teach a colleague how to use AI for their work"</label>
+      <div class="range-wrap">
+        <span>Not at all</span>
+        <input type="range" name="teach" min="1" max="5" value="3" oninput="this.nextElementSibling.textContent=this.value">
+        <span class="val">3</span>
+        <span>Absolutely</span>
+      </div>
+    </div>
+
+    <div class="question">
+      <label class="required">Would you install an app on your laptop to use AI more effectively?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="install" value="Yes" required> Yes</label>
+        <label><input type="radio" name="install" value="No"> No</label>
+        <label><input type="radio" name="install" value="I'd need help"> I'd need help</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label class="required">If AI could do any part of your job, what would you hand off entirely?</label>
+      <p class="hint">Dream big. No wrong answers.</p>
+      <textarea name="handoff" required placeholder="Describe what you'd hand off..."></textarea>
+    </div>
+
+    <div class="question">
+      <label>Have you ever tried to get AI to do something and it didn't work?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="tried_failed" value="Never tried"> I haven't really tried</label>
+        <label><input type="radio" name="tried_failed" value="No, it always worked"> I've tried and it always worked</label>
+        <label><input type="radio" name="tried_failed" value="Yes, gave up"> Yes, and I gave up</label>
+        <label><input type="radio" name="tried_failed" value="Yes, found a way"> Yes, but I found another way to make it work</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label class="required">Would you spend 30 minutes learning a new AI tool if it saved you 2 hours every week?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="invest" value="Definitely" required> Definitely</label>
+        <label><input type="radio" name="invest" value="Probably"> Probably</label>
+        <label><input type="radio" name="invest" value="Not sure"> Not sure</label>
+        <label><input type="radio" name="invest" value="No"> No, I'm too busy</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label class="required">What's one task in your job you wish took half the time?</label>
+      <textarea name="wish_task" required placeholder="Describe the task..."></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Assessment</button>
+  </form>
+
+  <div class="footer">SL Consulting</div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div id="results" class="container">
+  <div class="eyebrow">Your Result</div>
+  <h1 style="font-family:'Fraunces',Georgia,serif;font-variation-settings:'opsz' 144,'SOFT' 50,'wght' 360;font-size:clamp(2.0rem,5vw,2.8rem);line-height:1.0;letter-spacing:-0.025em;margin-bottom:12px;">Thank you, <em id="res-name" style="font-style:italic;font-variation-settings:'opsz' 144,'SOFT' 100,'wght' 360;color:#8a3214;"></em></h1>
+  <hr class="divider" style="margin-top:24px;">
+  <p class="tier-name" id="res-tier"></p>
+  <p class="tier-desc" id="res-desc"></p>
+  <p style="font-family:'Fraunces',Georgia,serif;font-variation-settings:'opsz' 30,'SOFT' 100,'wght' 400;font-style:italic;font-size:1.05rem;color:var(--accent);">See you at the workshop on April 15.</p>
+
+  <p class="status-msg" id="status-msg"></p>
+
+  <div class="fallback-box" id="fallback">
+    <p style="font-size:0.82rem;color:var(--warm);margin-bottom:8px;">Copy the text below and email it to <strong>stevenlava@gmail.com</strong>:</p>
+    <pre id="fallback-text"></pre>
+    <button class="copy-btn" onclick="copyFallback()">Copy to Clipboard</button>
+    <span id="copy-confirm" style="display:none;margin-left:12px;font-size:0.78rem;color:var(--accent);">Copied</span>
+  </div>
+
+  <div class="footer">SL Consulting</div>
+</div>
+
+<script>
+  // ── Password gate ──
+  var PW = 'jacquejackson';
+  function checkPw() {
+    if (document.getElementById('pw').value === PW) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('survey').style.display = 'block';
+    } else {
+      document.getElementById('gate-error').style.display = 'block';
+    }
+  }
+  document.getElementById('pw').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPw();
+  });
+
+  // ── Conditional fields ──
+  document.querySelector('input[value="Other"]').addEventListener('change', function() {
+    document.querySelector('input[name="tools_other"]').style.display = this.checked ? 'block' : 'none';
+  });
+  document.querySelectorAll('input[name="reusable"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      document.querySelector('input[name="reusable_what"]').style.display =
+        document.querySelector('input[name="reusable"][value="Yes"]').checked ? 'block' : 'none';
+    });
+  });
+
+  // ── Tier logic ──
+  var tierDesc = {
+    "Tier 1 -- AI Explorer": "You're getting started with AI. The workshop will show you how to use AI tools to search, summarize, and get answers faster than Google.",
+    "Tier 2 -- AI Builder": "You're already using AI regularly. The workshop will help you integrate it deeper into your daily workflows -- uploading documents, building reusable prompts, and getting more out of your subscription.",
+    "Tier 3 -- AI Operator": "You're ready to build with AI, not just use it. The workshop will cover advanced tools, automation, and how to create AI-powered systems that work for you."
+  };
+
+  function computeTier(d) {
+    var score = 0;
+    if (d.frequency === 'Daily') score += 3;
+    else if (d.frequency === 'Weekly') score += 2;
+    else if (d.frequency === 'A few times') score += 1;
+    if (d.subscription !== 'No, free only') score += 2;
+    if (d.upload === 'Regularly') score += 1;
+    if (d.reusable === 'Yes') score += 2;
+    var teach = parseInt(d.teach) || 1;
+    if (teach >= 4) score += 2;
+    else if (teach >= 3) score += 1;
+    if (d.install === 'Yes') score += 1;
+    if (d.tried_failed === 'Yes, found a way') score += 2;
+    else if (d.tried_failed === 'Yes, gave up') score += 1;
+    if (d.invest === 'Definitely') score += 1;
+    if (score >= 10) return 'Tier 3 -- AI Operator';
+    if (score >= 5) return 'Tier 2 -- AI Builder';
+    return 'Tier 1 -- AI Explorer';
+  }
+
+  function buildPlainText(d, tier) {
+    return 'GMPI AI Readiness Assessment\n' +
+      '================================\n' +
+      'Name: ' + d.name + '\n' +
+      'Department: ' + d.department + '\n' +
+      'AI frequency: ' + d.frequency + '\n' +
+      'Tools used: ' + (d.tools || 'None') + '\n' +
+      'Subscription: ' + d.subscription + '\n' +
+      'Hit usage limit: ' + (d.limit || 'N/A') + '\n' +
+      'Uses AI for: ' + (d.use_for || 'N/A') + '\n' +
+      'Uploads docs to AI: ' + (d.upload || 'N/A') + '\n' +
+      'Created reusable AI artifact: ' + d.reusable + (d.reusable_what ? ' (' + d.reusable_what + ')' : '') + '\n' +
+      'Self-rated teaching ability: ' + d.teach + '/5\n' +
+      'Would install AI app: ' + d.install + '\n' +
+      'Would hand off to AI: ' + d.handoff + '\n' +
+      'Tried and failed with AI: ' + (d.tried_failed || 'N/A') + '\n' +
+      'Willing to invest time: ' + d.invest + '\n' +
+      'Wish took half the time: ' + d.wish_task + '\n' +
+      '================================\n' +
+      'Result: ' + tier + '\n';
+  }
+
+  function copyFallback() {
+    var text = document.getElementById('fallback-text').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      document.getElementById('copy-confirm').style.display = 'inline';
+      setTimeout(function() { document.getElementById('copy-confirm').style.display = 'none'; }, 2000);
+    });
+  }
+
+  // ── Submit ──
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUO_C83IeuDS-gH1hsUQFlJvP7L_45tDrbpHcRKozIjfRmchrVJq_j4xtx80dp70P/exec";
+
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('.submit-btn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    var fd = new FormData(this);
+    var data = {};
+    var multiKeys = ['tools', 'use_for'];
+    for (var pair of fd.entries()) {
+      if (multiKeys.indexOf(pair[0]) !== -1) {
+        data[pair[0]] = data[pair[0]] ? data[pair[0]] + ', ' + pair[1] : pair[1];
+      } else {
+        data[pair[0]] = pair[1];
+      }
+    }
+    if (data.tools_other) {
+      data.tools = data.tools ? data.tools + ', ' + data.tools_other : data.tools_other;
+    }
+
+    var tier = computeTier(data);
+    var plainText = buildPlainText(data, tier);
+
+    // Show results page
+    function showResults(sent) {
+      document.getElementById('survey').style.display = 'none';
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('res-name').textContent = data.name;
+      document.getElementById('res-tier').textContent = tier;
+      document.getElementById('res-desc').textContent = tierDesc[tier] || '';
+      window.scrollTo(0, 0);
+
+      var statusEl = document.getElementById('status-msg');
+      var fallbackEl = document.getElementById('fallback');
+
+      if (sent) {
+        statusEl.textContent = 'Your response was submitted successfully.';
+        statusEl.className = 'status-msg';
+      } else {
+        statusEl.innerHTML = 'We could not confirm your submission was received (this can happen with slow or unstable connections). To make sure we have your answers, please copy the text below and email it to <strong>stevenlava@gmail.com</strong>.';
+        statusEl.className = 'status-msg warning';
+        fallbackEl.style.display = 'block';
+        document.getElementById('fallback-text').textContent = plainText;
+      }
+    }
+
+    // Send to Apps Script (no-cors: data lands, we just can't read the response)
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify(data)
+    }).then(function() {
+      // Promise resolved = request was sent successfully
+      showResults(true);
+    }).catch(function() {
+      // Network failure (offline, DNS error, etc.)
+      showResults(false);
+    });
+  });
+</script>
+</body>
+</html>
