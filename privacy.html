@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy · Steven Lava</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #faf8f3; color: #2c2c2c;
+    line-height: 1.6;
+    padding: 48px 24px 80px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 2.2rem; margin-bottom: 0.3em; letter-spacing: -0.5px; }
+  .tagline { color: #7a7a7a; font-size: 0.95rem; margin-bottom: 2em; font-style: italic; }
+  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.3rem; margin-top: 2em; margin-bottom: 0.5em; }
+  p { margin-bottom: 1em; }
+  ul { margin-bottom: 1em; padding-left: 1.5em; }
+  li { margin-bottom: 0.4em; }
+  a { color: #8b5e3c; }
+  .footer { margin-top: 3em; padding-top: 1.5em; border-top: 1px solid #e0dcd6; color: #7a7a7a; font-size: 0.85rem; }
+  .footer a { text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Privacy Policy</h1>
+<p class="tagline">Last updated: April 22, 2026</p>
+
+<p>This privacy policy describes how Steven Lava (&ldquo;I,&rdquo; &ldquo;my,&rdquo; or &ldquo;me&rdquo;) handles data accessed by personal productivity software used in the course of operational consulting work at <a href="https://stevenlava.com">stevenlava.com</a>.</p>
+
+<h2>Who This Applies To</h2>
+
+<p>This policy applies to a personal-use automation system (&ldquo;Bilbo&rdquo;) operated by me to assist with client engagements, personal task management, and meeting workflow for SL Consulting. The system is not a product sold to or shared with third parties.</p>
+
+<h2>What Data Is Accessed</h2>
+
+<p>When I authenticate the system with my Google account, the following scopes are requested via OAuth:</p>
+
+<ul>
+  <li><strong>Google Sheets</strong> — read and write access to spreadsheets I own or have been shared with me, used to maintain weekly client scorecards and meeting data.</li>
+  <li><strong>Google Drive</strong> — read and write access to files I own, used to store working documents and meeting artifacts.</li>
+  <li><strong>Gmail (read &amp; send)</strong> — read access used as a secondary channel for retrieving email attachments; send access used as a backup method for outbound email.</li>
+  <li><strong>Google Calendar</strong> — event read and write access for scheduling meetings and personal commitments.</li>
+  <li><strong>Google Apps Script</strong> — project and deployment management, used to deploy Apps Script endpoints that support my own workflow tooling.</li>
+</ul>
+
+<h2>How Data Is Used</h2>
+
+<p>All data access occurs only in the context of my own personal workflow. The system reads and writes only to accounts, sheets, and folders that I own or have been explicitly shared on. No data is transmitted to any third party, uploaded to any external service other than Google&rsquo;s own APIs, or used for any training or analytics.</p>
+
+<h2>How Data Is Stored</h2>
+
+<p>OAuth tokens are stored locally on my devices (MacBook and desk computer), encrypted at rest via macOS file system protections. Tokens are never shared, never committed to version control, and never transmitted over any channel other than Google&rsquo;s official OAuth endpoints.</p>
+
+<p>No user data beyond OAuth tokens is persisted by the automation system. The system reads data on demand and writes output back to the same Google services. There is no separate database, no analytics store, and no third-party logging.</p>
+
+<h2>Sharing</h2>
+
+<p>I do not share, sell, or disclose Google user data to any third party. The system accesses my own Google account only, on my own devices.</p>
+
+<h2>Retention</h2>
+
+<p>OAuth refresh tokens are retained locally until revoked. I can revoke access at any time via my <a href="https://myaccount.google.com/permissions">Google Account security settings</a>, which immediately invalidates the stored tokens.</p>
+
+<h2>Security</h2>
+
+<p>The system uses Google&rsquo;s standard OAuth 2.0 flow. No passwords are stored. Tokens are kept on local disk only, accessible only to my user account on each device. Devices are protected with FileVault full-disk encryption, Touch ID / Face ID login, and macOS automatic security updates.</p>
+
+<h2>Contact</h2>
+
+<p>Questions about this policy: <a href="mailto:steven.lava@sllogistics.ph">steven.lava@sllogistics.ph</a>.</p>
+
+<div class="footer">
+  Steven Lava · SL Consulting · Cebu City, Philippines<br>
+  <a href="/">stevenlava.com</a> · <a href="/terms.html">Terms of Service</a>
+</div>
+
+</main>
+</body>
+</html>
