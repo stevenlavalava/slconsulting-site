@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build your AI assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1.title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--stone);
+    margin-bottom: 32px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  .section-head {
+    margin: 48px 0 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .section-head .section-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 380;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .section-head .section-blurb {
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .question { margin-bottom: 28px; }
+  label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  label.required::after {
+    content: ' *';
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.large { min-height: 160px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    font-weight: 400;
+    font-size: 0.94rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .radio-group input, .checkbox-group input {
+    accent-color: var(--accent);
+  }
+  .other-input { margin-top: 8px; }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Result page */
+  #result { display: none; text-align: center; padding-top: 40px; }
+  #result h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  #result h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  #result .your-code {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 500;
+    font-size: 3.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding: 28px;
+    border: 1px dashed var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.4);
+  }
+  #result .next-step {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #result .next-step strong { color: var(--ink); }
+  #result .status-msg {
+    font-size: 0.86rem;
+    color: var(--warm);
+    margin-top: 16px;
+  }
+  #result .status-msg.warning {
+    color: var(--accent);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+    h1.title { font-size: 2rem; }
+    .section-head h2 { font-size: 1.35rem; }
+    #result .your-code { font-size: 2.4rem; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── QUESTIONNAIRE ── -->
+<div id="form-page" class="container">
+  <div class="eyebrow">SL Consulting · AI Operator</div>
+  <h1 class="title">Let's build your <em>AI assistant.</em></h1>
+  <p class="lede">A few questions so we can tailor your AI to you. Take your time. The more your AI knows about you, the more useful it is from day one.</p>
+  <hr class="divider">
+
+  <form id="form">
+
+    <!-- ── A. About you ── -->
+    <div class="section-head">
+      <div class="section-num">Section A</div>
+      <h2>About you</h2>
+      <p class="section-blurb">The basics.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">Your name</label>
+      <input type="text" name="name" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Your role</label>
+      <input type="text" name="role" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Your work email</label>
+      <p class="hint">Gmail strongly preferred. Outlook still works but with no live email integration today.</p>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Your work device</label>
+      <div class="radio-group">
+        <label><input type="radio" name="device" value="Mac" required> Mac</label>
+        <label><input type="radio" name="device" value="Windows"> Windows</label>
+        <label><input type="radio" name="device" value="Either"> Either / both</label>
+      </div>
+    </div>
+
+    <!-- ── B. About the AI ── -->
+    <div class="section-head">
+      <div class="section-num">Section B</div>
+      <h2>About the AI you're naming</h2>
+      <p class="section-blurb">Your AI gets a name and a personality. Pick what feels right.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you want to call your AI?</label>
+      <p class="hint">Anything. A character, a creature, a name from a memory. Make it yours.</p>
+      <input type="text" name="ai_name" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Where did this name come from?</label>
+      <p class="hint">A book? A movie? A childhood memory? Just sounds nice? A private joke? Tell us — it helps us pick an icon that fits.</p>
+      <input type="text" name="name_source" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Pick a persona vibe</label>
+      <div class="radio-group">
+        <label><input type="radio" name="persona" value="warm + supportive" required> Warm and supportive</label>
+        <label><input type="radio" name="persona" value="blunt + efficient"> Blunt and efficient</label>
+        <label><input type="radio" name="persona" value="witty + playful"> Witty and playful</label>
+        <label><input type="radio" name="persona" value="calm + meticulous"> Calm and meticulous</label>
+        <label><input type="radio" name="persona" value="other"> Something else…</label>
+      </div>
+      <input type="text" name="persona_other" class="other-input" placeholder="Describe the vibe…" style="display:none">
+    </div>
+
+    <div class="question">
+      <label class="required">Voice preference</label>
+      <div class="radio-group">
+        <label><input type="radio" name="voice" value="casual" required> Casual</label>
+        <label><input type="radio" name="voice" value="professional"> Professional</label>
+        <label><input type="radio" name="voice" value="matches my mood"> Matches my mood</label>
+      </div>
+    </div>
+
+    <!-- ── C. Naming the spaces ── -->
+    <div class="section-head">
+      <div class="section-num">Section C</div>
+      <h2>Naming the spaces</h2>
+      <p class="section-blurb">Your AI lives in two places — a vault for ideas and a folder for files. Pick names that mean something to you. Anything.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you call your AI's vault?</label>
+      <p class="hint">This is where notes, ideas, and memories live. Free text. No defaults.</p>
+      <input type="text" name="vault_name" required>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you call your AI's drop folder?</label>
+      <p class="hint">This is where you drop files for the AI to read or work on. Free text. No defaults.</p>
+      <input type="text" name="drop_folder_name" required>
+    </div>
+
+    <!-- ── D. About your work ── -->
+    <div class="section-head">
+      <div class="section-num">Section D</div>
+      <h2>About your work</h2>
+      <p class="section-blurb">What do you actually need help with?</p>
+    </div>
+
+    <div class="question">
+      <label class="required">Top 3 things you want help with</label>
+      <p class="hint">Specific is better. "Drafting follow-up emails to suppliers" beats "communication."</p>
+      <textarea name="top_asks" required placeholder="1.&#10;2.&#10;3."></textarea>
+    </div>
+
+    <div class="question">
+      <label>What kinds of files would you drop into your AI's folder?</label>
+      <p class="hint">Check all that apply.</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="files_typical" value="reports"> Reports</label>
+        <label><input type="checkbox" name="files_typical" value="SOPs"> SOPs / process docs</label>
+        <label><input type="checkbox" name="files_typical" value="spreadsheets"> Spreadsheets</label>
+        <label><input type="checkbox" name="files_typical" value="emails"> Emails / threads</label>
+        <label><input type="checkbox" name="files_typical" value="receipts"> Receipts / invoices</label>
+        <label><input type="checkbox" name="files_typical" value="photos"> Photos</label>
+        <label><input type="checkbox" name="files_typical" value="other"> Other</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>One thing you find annoying about AI today</label>
+      <p class="hint">We'll encode this as a rule your AI lives by.</p>
+      <textarea name="ai_pet_peeve" placeholder="e.g., 'It's too wordy.' or 'It tries to send emails I didn't ask it to send.'"></textarea>
+    </div>
+
+    <!-- ── E. About you, the person ── -->
+    <div class="section-head">
+      <div class="section-num">Section E</div>
+      <h2>About you, the person</h2>
+      <p class="section-blurb">So your AI knows you, not just your job.</p>
+    </div>
+
+    <div class="question">
+      <label>A hobby or thing you love doing outside work</label>
+      <input type="text" name="hobby">
+    </div>
+
+    <div class="question">
+      <label>Something you're proud of</label>
+      <input type="text" name="proud_of">
+    </div>
+
+    <div class="question">
+      <label>A goal in life</label>
+      <p class="hint">Career, family, faith, fitness — anything.</p>
+      <input type="text" name="life_goal">
+    </div>
+
+    <div class="question">
+      <label>Two or three people who matter most to you</label>
+      <p class="hint">Just first names. Optional.</p>
+      <input type="text" name="key_people">
+    </div>
+
+    <div class="question">
+      <label>A short story about a recent memory</label>
+      <p class="hint">A place you remember, with people you remember. 3–5 lines.</p>
+      <textarea name="recent_memory"></textarea>
+    </div>
+
+    <!-- ── F. First Notebook ── -->
+    <div class="section-head">
+      <div class="section-num">Section F</div>
+      <h2>Your first Notebook</h2>
+      <p class="section-blurb">Drop everything that's on your mind right now. Tasks, thoughts, ideas, worries. Don't filter. Your AI's first job is to help you sort it.</p>
+    </div>
+
+    <div class="question">
+      <textarea name="first_notebook" class="large" placeholder="Write freely…"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit</button>
+  </form>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+<!-- ── RESULT PAGE ── -->
+<div id="result" class="container">
+  <div class="eyebrow">Submitted</div>
+  <h1>Your assistant is being <em>prepared.</em></h1>
+  <p class="next-step"><strong>Your code:</strong></p>
+  <div class="your-code" id="code-display">XXXX-XX</div>
+  <p class="next-step">Save this code. When your assistant is ready, go to <strong>stevenlava.com/myaiplease</strong> and enter it there.</p>
+  <p class="status-msg" id="status-msg"></p>
+</div>
+
+<script>
+  // ── Apps Script endpoint (replace after deploying) ──
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlqO_pD2_5JZnpXKhyUmiKx3ILOX7SAZgXQvOOj2HMBgz3eq6sKgZWHoE2s4oAfWR-/exec";
+
+  // ── Code generator ──
+  function generateCode() {
+    // 6 chars, A-Z + 2-9 (no 0/1/O/I to avoid confusion). Format: XXX-XXX.
+    var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var s = "";
+    for (var i = 0; i < 6; i++) {
+      s += chars.charAt(Math.floor(Math.random() * chars.length));
+      if (i === 2) s += "-";
+    }
+    return s;
+  }
+
+  // ── Conditional fields ──
+  document.querySelector('input[name="persona"][value="other"]').addEventListener('change', function() {
+    document.querySelector('input[name="persona_other"]').style.display = this.checked ? 'block' : 'none';
+  });
+
+  // ── Submit ──
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var btn = this.querySelector('.submit-btn');
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    var fd = new FormData(this);
+    var data = {};
+    var multi = ['files_typical'];
+    for (var pair of fd.entries()) {
+      if (multi.indexOf(pair[0]) !== -1) {
+        data[pair[0]] = data[pair[0]] ? data[pair[0]] + ', ' + pair[1] : pair[1];
+      } else {
+        data[pair[0]] = pair[1];
+      }
+    }
+    if (data.persona === 'other' && data.persona_other) {
+      data.persona = data.persona_other;
+    }
+    delete data.persona_other;
+
+    var code = generateCode();
+    data.code = code;
+
+    function showResult(sent) {
+      document.getElementById('form-page').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('code-display').textContent = code;
+      window.scrollTo(0, 0);
+
+      var statusEl = document.getElementById('status-msg');
+      if (sent) {
+        statusEl.textContent = 'Submission received.';
+        statusEl.className = 'status-msg';
+      } else {
+        statusEl.innerHTML = 'We could not confirm your submission was received. Please show your code to Steven so we can capture your answers manually.';
+        statusEl.className = 'status-msg warning';
+      }
+    }
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(data)
+    }).then(function () {
+      showResult(true);
+    }).catch(function () {
+      showResult(false);
+    });
+  });
+</script>
+
+</body>
+</html>

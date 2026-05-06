@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How your AI assistant works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px;
+  }
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--stone);
+    font-size: 0.96rem;
+    margin-bottom: 48px;
+  }
+
+  /* ── Diagram ── */
+  .diagram { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  .actor {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 18px 28px;
+    text-align: center;
+    min-width: 280px;
+  }
+  .actor.human {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+  .actor.human .actor-title {
+    color: var(--cream);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 80, "wght" 380;
+  }
+  .actor.human .actor-sub {
+    font-size: 0.78rem;
+    color: rgba(246, 242, 232, 0.7);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .arrow {
+    width: 1.5px;
+    height: 32px;
+    background: var(--ink);
+    position: relative;
+  }
+  .arrow.both::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -4px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid var(--ink);
+  }
+  .arrow.both::after,
+  .arrow.down::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: -4px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--ink);
+  }
+  .arrow-label {
+    font-size: 0.74rem;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin: 4px 0;
+  }
+
+  .ai-box {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 620px;
+  }
+  .ai-box .ai-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 380;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .ai-box .ai-title em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 380;
+  }
+  .ai-box .ai-sub {
+    text-align: center;
+    color: var(--stone);
+    font-size: 0.86rem;
+    margin-bottom: 24px;
+  }
+  .ai-layers {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 10px 24px;
+    align-items: baseline;
+  }
+  .layer-label {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "wght" 480;
+    font-size: 0.96rem;
+    color: var(--accent);
+    text-align: right;
+  }
+  .layer-detail {
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .layer-detail .what {
+    color: var(--stone);
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .stores-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 620px;
+  }
+  .store {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .store h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "wght" 460;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  .store ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .store ul li {
+    font-size: 0.84rem;
+    color: var(--stone);
+    padding: 3px 0;
+  }
+  .store .note {
+    font-size: 0.76rem;
+    color: var(--warm);
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  /* ── Footer ── */
+  .legend {
+    margin: 56px 0 0;
+    padding-top: 32px;
+    border-top: 0.5px solid var(--rule);
+    color: var(--stone);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+  .legend p { margin-bottom: 12px; }
+  .legend strong { color: var(--ink); }
+
+  .footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { background: white; font-size: 13px; }
+    .page { padding: 24px; }
+    .ai-box { background: #fafafa; }
+    .actor { background: #fafafa; }
+    .store { background: #fafafa; }
+    .actor.human { background: #19150f; }
+  }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 1.8rem; }
+    .ai-layers { grid-template-columns: 100px 1fr; gap: 8px 16px; }
+    .stores-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="eyebrow">SL Consulting · AI Operator</div>
+  <h1>How your <em>AI assistant</em> works</h1>
+  <p class="subtitle">A practical map. Not theoretical perfection.</p>
+
+  <div class="diagram">
+
+    <!-- Human -->
+    <div class="actor human">
+      <div class="actor-title">You</div>
+      <div class="actor-sub">THE OPERATOR</div>
+    </div>
+
+    <div class="arrow-label">talks to</div>
+    <div class="arrow down"></div>
+
+    <!-- AI -->
+    <div class="ai-box">
+      <div class="ai-title">Your <em>AI assistant</em></div>
+      <div class="ai-sub">Five things make it work, in plain English.</div>
+      <div class="ai-layers">
+
+        <div class="layer-label">DNA</div>
+        <div class="layer-detail">CLAUDE.md <span class="what">Identity, persona, locked rules. You write it once. It loads every session.</span></div>
+
+        <div class="layer-label">instinct</div>
+        <div class="layer-detail">Auto-memory <span class="what">Behavioral preferences your AI learns from your corrections. It writes itself.</span></div>
+
+        <div class="layer-label">conscience</div>
+        <div class="layer-detail">Our Contract <span class="what">The safety rules — drafts only, no surprise sends, ask before destructive things.</span></div>
+
+        <div class="layer-label">library</div>
+        <div class="layer-detail">Obsidian Vault <span class="what">Your notes, your people, your projects. Source of truth for your world.</span></div>
+
+        <div class="layer-label">workshop</div>
+        <div class="layer-detail">Workshop folder <span class="what">Where your AI proposes deterministic tools — Python, Apps Script, anything repeatable that shouldn't burn AI tokens.</span></div>
+
+        <div class="layer-label">pantry</div>
+        <div class="layer-detail">Drop folder <span class="what">A regular folder where you drop files for your AI to read or write.</span></div>
+
+      </div>
+    </div>
+
+    <div class="arrow-label">reads + writes</div>
+    <div class="arrow both"></div>
+
+    <!-- Stores -->
+    <div class="stores-row">
+      <div class="store">
+        <h3>Vault</h3>
+        <ul>
+          <li>Notebook</li>
+          <li>Tasks</li>
+          <li>Session Log</li>
+          <li>Workshop/</li>
+          <li>People/</li>
+          <li>Reference/</li>
+          <li>Ideas/</li>
+        </ul>
+      </div>
+      <div class="store">
+        <h3>Drop folder</h3>
+        <ul>
+          <li>Files you drop</li>
+          <li>Files the AI saves</li>
+        </ul>
+        <div class="note">Optional Google Drive sync. Otherwise, stays local.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Honest framing -->
+  <div class="legend">
+    <p><strong>The hero workflow:</strong> Notebook → AI suggests (and adds its own ideas) → you reply with <code>//comments//</code> → AI executes. Run it daily, weekly, whenever. The AI brings its homework every time.</p>
+    <p><strong>The honest part:</strong> there's tension between Obsidian-as-source-of-truth and Claude's own memory layers. Nobody has a perfect mental model of how they all interact. The pattern above is what works in practice. You'll find your own rhythm.</p>
+  </div>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+</body>
+</html>

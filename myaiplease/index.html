@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim your AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+    --green: #3d7a3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 64px 48px;
+  }
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  .lede {
+    font-size: 1rem;
+    color: var(--stone);
+    margin-bottom: 40px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  /* ── Stage 1: Code entry ── */
+  #stage-code label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+  #stage-code input {
+    width: 100%;
+    padding: 18px 20px;
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    font-size: 1.4rem;
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "wght" 480;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #stage-code input:focus { border-color: var(--accent); }
+  #stage-code input::placeholder {
+    color: var(--rule);
+    letter-spacing: 0.12em;
+  }
+  .btn {
+    display: inline-block;
+    padding: 14px 40px;
+    margin-top: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn:hover { background: var(--ink); color: var(--cream); }
+  .btn.primary {
+    color: var(--cream);
+    background: var(--ink);
+  }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn:disabled:hover {
+    background: none;
+    color: var(--ink);
+  }
+  .btn.primary:disabled:hover {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .err-msg {
+    color: var(--accent);
+    font-size: 0.88rem;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* ── Stage 2: Env readiness ── */
+  #stage-env { display: none; }
+  .env-greeting {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--rule-fine);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .env-greeting .ai-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 80, "wght" 400;
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+  .env-greeting .ai-tagline {
+    font-size: 0.92rem;
+    color: var(--stone);
+    margin-top: 6px;
+  }
+
+  .checklist h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "wght" 380;
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+  .checklist .checklist-blurb {
+    font-size: 0.92rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  .checklist label {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule-fine);
+    font-size: 0.96rem;
+    cursor: pointer;
+  }
+  .checklist label:last-of-type {
+    border-bottom: 0;
+    margin-bottom: 16px;
+  }
+  .checklist input[type="checkbox"] {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .checklist .check-detail {
+    font-size: 0.85rem;
+    color: var(--warm);
+    margin-top: 2px;
+  }
+
+  .warning-box {
+    background: rgba(194, 90, 44, 0.08);
+    border: 1px solid var(--accent-soft);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 0.88rem;
+    color: var(--stone);
+  }
+  .warning-box strong { color: var(--accent); }
+
+  /* ── Stage 3: Success ── */
+  #stage-done { display: none; text-align: center; padding-top: 40px; }
+  #stage-done .check {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+  #stage-done h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2rem;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  #stage-done .next {
+    font-size: 1rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #stage-done .next strong { color: var(--ink); }
+  #stage-done ol {
+    text-align: left;
+    max-width: 400px;
+    margin: 0 auto 32px;
+    padding-left: 24px;
+  }
+  #stage-done ol li {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 560px) {
+    .container { padding: 32px 24px; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── Stage 1: Enter code ── -->
+  <div id="stage-code">
+    <div class="eyebrow">Claim</div>
+    <h1>Time to <em>meet your AI.</em></h1>
+    <p class="lede">Enter the code from your questionnaire. We'll check it's ready, walk you through a quick environment check, then hand you the build command.</p>
+
+    <label>Your code</label>
+    <input type="text" id="code-input" placeholder="XXX-XXX" maxlength="7" autocomplete="off">
+    <br>
+    <button class="btn primary" id="lookup-btn">Look up</button>
+    <p class="err-msg" id="lookup-err"></p>
+  </div>
+
+  <!-- ── Stage 2: Env readiness ── -->
+  <div id="stage-env">
+    <div class="eyebrow">Almost there</div>
+    <div class="env-greeting">
+      <p>You're about to bring <span class="ai-name" id="env-ai-name">your AI</span> to life.</p>
+      <p class="ai-tagline">Before you copy the build command, make sure your environment is ready. Tick each box once it's true.</p>
+    </div>
+
+    <div class="checklist">
+      <h3>Environment check</h3>
+      <p class="checklist-blurb">Every box must be ticked before the copy button activates.</p>
+
+      <label>
+        <input type="checkbox" class="env-check">
+        <span>
+          <strong>Obsidian is open on my machine.</strong>
+          <div class="check-detail">If you don't have it yet, install from obsidian.md and come back.</div>
+        </span>
+      </label>
+
+      <label>
+        <input type="checkbox" class="env-check">
+        <span>
+          <strong>My vault folder exists at the path I named in the questionnaire.</strong>
+          <div class="check-detail">Inside <code>~/Desktop/[your AI's name]/</code>.</div>
+        </span>
+      </label>
+
+      <label>
+        <input type="checkbox" class="env-check">
+        <span>
+          <strong>That folder is opened as a vault inside Obsidian.</strong>
+          <div class="check-detail">In Obsidian: Open folder as vault → pick the folder you just created.</div>
+        </span>
+      </label>
+
+      <label>
+        <input type="checkbox" class="env-check">
+        <span>
+          <strong>My drop folder exists at the path I named.</strong>
+          <div class="check-detail">A sibling of the vault folder. Empty is fine.</div>
+        </span>
+      </label>
+
+      <label>
+        <input type="checkbox" class="env-check">
+        <span>
+          <strong>Terminal is open beside Obsidian, with Claude Code running in the vault folder.</strong>
+          <div class="check-detail">Type <code>claude</code> after <code>cd</code>-ing into your vault.</div>
+        </span>
+      </label>
+    </div>
+
+    <div class="warning-box">
+      <strong>One copy, then it's gone.</strong> When you click the button below, the build command goes to your clipboard once. The code locks. If you accidentally lose it before pasting, talk to Steven.
+    </div>
+
+    <button class="btn primary" id="copy-btn" disabled>Copy your assistant</button>
+    <p class="err-msg" id="copy-err"></p>
+  </div>
+
+  <!-- ── Stage 3: Done ── -->
+  <div id="stage-done">
+    <div class="check">✓</div>
+    <h2>It's on your clipboard.</h2>
+    <p class="next">Now bring <span style="font-family:'Fraunces',serif;font-style:italic;color:var(--accent)" id="done-ai-name">your AI</span> to life.</p>
+    <ol>
+      <li>Click into your terminal where Claude Code is running.</li>
+      <li>Paste (Cmd+V on Mac, Ctrl+V on Windows). Hit Enter.</li>
+      <li>Watch your vault fill up in Obsidian as your AI builds itself.</li>
+      <li>When it's done, your AI will say hi.</li>
+    </ol>
+  </div>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+<script>
+  // ── Apps Script endpoint (replace after deploying) ──
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlqO_pD2_5JZnpXKhyUmiKx3ILOX7SAZgXQvOOj2HMBgz3eq6sKgZWHoE2s4oAfWR-/exec";
+
+  // ── State ──
+  var fetchedPrompt = null;
+  var fetchedAiName = "";
+  var currentCode = "";
+
+  // ── Stage 1: Look up code ──
+  var codeInput = document.getElementById('code-input');
+  var lookupBtn = document.getElementById('lookup-btn');
+  var lookupErr = document.getElementById('lookup-err');
+
+  // Auto-format code input as user types: insert dash after 3 chars
+  codeInput.addEventListener('input', function (e) {
+    var v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (v.length > 3) v = v.slice(0, 3) + '-' + v.slice(3, 6);
+    e.target.value = v;
+  });
+
+  codeInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') lookupBtn.click();
+  });
+
+  lookupBtn.addEventListener('click', function () {
+    var code = codeInput.value.trim().toUpperCase();
+    if (code.length < 7) {
+      lookupErr.textContent = "Please enter your full 6-character code.";
+      lookupErr.style.display = 'block';
+      return;
+    }
+    lookupErr.style.display = 'none';
+    lookupBtn.textContent = 'Looking up…';
+    lookupBtn.disabled = true;
+
+    fetch(APPS_SCRIPT_URL + '?action=peek&code=' + encodeURIComponent(code))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        lookupBtn.textContent = 'Look up';
+        lookupBtn.disabled = false;
+
+        if (!j.ok) {
+          if (j.error === 'code_not_found') {
+            lookupErr.textContent = "We couldn't find that code. Double-check it.";
+          } else if (j.error === 'not_ready') {
+            lookupErr.textContent = "Your assistant is still being prepared. Try again in a few minutes.";
+          } else if (j.error === 'already_used') {
+            lookupErr.textContent = "This code has already been used. Talk to Steven if you need a redo.";
+          } else {
+            lookupErr.textContent = "Something went wrong. (" + (j.error || 'unknown') + ")";
+          }
+          lookupErr.style.display = 'block';
+          return;
+        }
+
+        // Peek succeeded — status is unchanged. Burn happens on Copy click.
+        fetchedPrompt = j.master_prompt;
+        fetchedAiName = j.ai_name || "your AI";
+        currentCode = code;
+
+        document.getElementById('env-ai-name').textContent = fetchedAiName;
+        document.getElementById('done-ai-name').textContent = fetchedAiName;
+        document.getElementById('stage-code').style.display = 'none';
+        document.getElementById('stage-env').style.display = 'block';
+        window.scrollTo(0, 0);
+      })
+      .catch(function (err) {
+        lookupBtn.textContent = 'Look up';
+        lookupBtn.disabled = false;
+        lookupErr.textContent = "Couldn't reach the server. Check your connection and try again.";
+        lookupErr.style.display = 'block';
+      });
+  });
+
+  // ── Stage 2: Env checkboxes + Copy ──
+  var copyBtn = document.getElementById('copy-btn');
+  var copyErr = document.getElementById('copy-err');
+  var envChecks = document.querySelectorAll('.env-check');
+
+  function updateCopyState() {
+    var allChecked = Array.from(envChecks).every(function (c) { return c.checked; });
+    copyBtn.disabled = !allChecked;
+  }
+  envChecks.forEach(function (c) {
+    c.addEventListener('change', updateCopyState);
+  });
+
+  copyBtn.addEventListener('click', function () {
+    if (!fetchedPrompt) {
+      copyErr.textContent = "Build command not loaded. Reload the page and re-enter your code.";
+      copyErr.style.display = 'block';
+      return;
+    }
+
+    copyBtn.disabled = true;
+    copyBtn.textContent = "Copying…";
+
+    navigator.clipboard.writeText(fetchedPrompt).then(function () {
+      // Burn the code (fire-and-forget — UX doesn't block on this).
+      fetch(APPS_SCRIPT_URL + '?action=burn&code=' + encodeURIComponent(currentCode))
+        .catch(function () { /* swallow — clipboard already populated */ });
+
+      document.getElementById('stage-env').style.display = 'none';
+      document.getElementById('stage-done').style.display = 'block';
+      window.scrollTo(0, 0);
+    }).catch(function () {
+      copyBtn.disabled = false;
+      copyBtn.textContent = "Copy your assistant";
+      copyErr.textContent = "Couldn't copy to clipboard. Allow clipboard access in your browser and try again.";
+      copyErr.style.display = 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
