@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Operator · Session 3 · GMPI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..900,30..100;1,9..144,200..900,30..100&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #faf6ec;
+    --ink: #1f1a14;
+    --warm: #5b4a36;
+    --stone: #8a7e68;
+    --rule: #d6cdb8;
+    --rule-fine: #ece4cf;
+    --accent: #8a3214;
+    --accent-soft: #c98a4b;
+    --gold: #b78a3a;
+    --ease-soft: cubic-bezier(.22, 1, .36, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+  body {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 40px 64px;
+  }
+
+  /* Top bar */
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+  }
+  .top .right { color: var(--stone); }
+
+  /* Center */
+  .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    padding-left: 8px;
+  }
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 360;
+    font-size: clamp(4rem, 9vw, 9rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+  h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 100, "wght" 380;
+    font-size: clamp(1.2rem, 1.6vw, 1.6rem);
+    color: var(--warm);
+    max-width: 720px;
+    line-height: 1.45;
+    margin-bottom: 56px;
+  }
+  .meta {
+    display: flex;
+    gap: 64px;
+    align-items: flex-start;
+    margin-top: 8px;
+  }
+  .meta-item .label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 8px;
+  }
+  .meta-item .value {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 400;
+    font-size: 1.5rem;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .meta-item .value em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  /* Bottom */
+  .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stone);
+  }
+  .bottom .pulse {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.85); }
+    50%      { opacity: 1;   transform: scale(1.1);  }
+  }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--warm);
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+
+  /* Decorative gem */
+  .gem {
+    position: fixed;
+    top: 50%; right: 9%;
+    transform: translateY(-50%);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  @media (max-width: 1100px) { .gem { display: none; } }
+</style>
+</head>
+<body>
+
+<svg class="gem" width="360" height="360" viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="48" fill="#6f57b8"/>
+  <path d="M 24 36 L 50 16 L 76 36 L 64 80 L 50 92 L 36 80 Z"
+        fill="#a895d8" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M 50 16 L 50 92 M 24 36 L 76 36" stroke="#fff" stroke-width="0.8" opacity="0.5"/>
+</svg>
+
+<div class="top">
+  <div class="left">SL Consulting · AI Operator</div>
+  <div class="right" id="dateLabel">Thursday · May 7 · 2026</div>
+</div>
+
+<div class="center">
+  <div class="eyebrow">Session 03 · Grand Majesty Pharmaceutical</div>
+  <h1>Today, you build<br>your own <em>AI&nbsp;Assistant</em>.</h1>
+  <div class="lede">Bring it your name. Your folders. Your rules. Walk out with an assistant that already knows you.</div>
+
+  <div class="meta">
+    <div class="meta-item">
+      <div class="label">Begins</div>
+      <div class="value">9<em>:</em>00 AM</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Wraps</div>
+      <div class="value">12<em>:</em>00 NN</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Facilitator</div>
+      <div class="value">Steven <em>Lava</em></div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div class="pulse">
+    <span class="pulse-dot"></span>
+    <span id="status">Settling in</span>
+  </div>
+  <div class="clock" id="clock">--:--</div>
+  <div class="right">stevenlava.com / newai</div>
+</div>
+
+<script>
+  function tick() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${hh}:${mm} PHT`;
+    // Status copy shifts as 9:00 approaches
+    const minsTo9 = (9 * 60) - (now.getHours() * 60 + now.getMinutes());
+    const status = document.getElementById('status');
+    if (minsTo9 > 30) status.textContent = 'Settling in · Coffee · Bread';
+    else if (minsTo9 > 5) status.textContent = `Beginning in ${minsTo9} min`;
+    else if (minsTo9 > 0) status.textContent = `Beginning shortly`;
+    else if (minsTo9 > -10) status.textContent = `In session`;
+    else status.textContent = `In session`;
+  }
+  tick();
+  setInterval(tick, 30 * 1000);
+</script>
+
+</body>
+</html>

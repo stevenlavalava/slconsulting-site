@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sherlock — your AI assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+    --gold: #d4a017;
+    --term-bg: #1a1612;
+    --term-fg: #f6f2e8;
+
+    /* Game-feel easing curves */
+    --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+    --ease-soft: cubic-bezier(.4, 0, .2, 1);
+    --ease-in: cubic-bezier(.55, .085, .68, .53);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    cursor: default;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ════════ Stage ════════ */
+  .stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* Every animatable element transitions left/top/transform/opacity */
+  .stage > * {
+    transition:
+      left 800ms var(--ease-soft),
+      top 800ms var(--ease-soft),
+      transform 800ms var(--ease-bounce),
+      opacity 600ms var(--ease-soft);
+  }
+
+  /* ════════ Sherlock ════════ */
+  .sherlock {
+    position: absolute;
+    width: 200px; height: 200px;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
+  .sherlock-portrait {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow:
+      0 8px 28px rgba(25, 21, 15, 0.18),
+      0 2px 6px rgba(25, 21, 15, 0.10),
+      inset 0 0 0 4px rgba(246, 242, 232, 0.6);
+    background: var(--paper);
+    animation: sherlockFloat 4.5s var(--ease-soft) infinite;
+  }
+  .sherlock-portrait img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .sherlock-name {
+    position: absolute;
+    left: 50%; top: 100%;
+    transform: translate(-50%, 12px);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 400;
+    font-size: 1.6rem;
+    color: var(--accent);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 600ms var(--ease-soft) 200ms;
+  }
+  body.scene-1 .sherlock-name { opacity: 1; }
+
+  @keyframes sherlockFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-8px) scale(1.01); }
+  }
+  .sherlock-pulse {
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sherlock.thinking .sherlock-pulse {
+    animation: thinkPulse 1.4s ease-out infinite;
+  }
+  @keyframes thinkPulse {
+    0%   { opacity: 0.6; transform: scale(0.9); }
+    100% { opacity: 0;   transform: scale(1.4); }
+  }
+
+  /* ════════ Title (Scene 1) ════════ */
+  .title {
+    position: absolute;
+    left: 50%; top: 18%;
+    transform: translate(-50%, -50%);
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-align: center;
+    opacity: 0;
+    z-index: 4;
+  }
+  .title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .title small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-top: 18px;
+  }
+  body.scene-1 .title { opacity: 1; }
+
+  /* ════════ Claude bar ════════ */
+  .claude-bar {
+    position: absolute;
+    left: 50%; top: 75%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 0;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 14px 8px;
+    box-shadow: 0 6px 22px rgba(25, 21, 15, 0.12);
+    z-index: 3;
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.scene-2 .claude-bar,
+  body.scene-3 .claude-bar,
+  body.scene-4 .claude-bar,
+  body.scene-5 .claude-bar { opacity: 1; pointer-events: auto; }
+
+  .claude-layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 22px;
+    border-right: 0.5px solid var(--rule);
+    cursor: pointer;
+    transition: background 200ms, transform 150ms;
+    border-radius: 6px;
+  }
+  .claude-layer:active {
+    transform: scale(0.96);
+  }
+  .claude-layer:last-child { border-right: 0; }
+  .claude-layer:hover { background: rgba(138, 50, 20, 0.06); }
+  .claude-layer .icon-svg {
+    width: 28px; height: 28px;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+  .claude-layer .lname {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 80, "wght" 400;
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  .claude-layer .lkind {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-top: 2px;
+  }
+
+  /* ════════ Obsidian + Drive (foundation row) ════════ */
+  .foundation {
+    position: absolute;
+    left: 50%; top: 80%;
+    transform: translate(-50%, -50%) scale(0.9);
+    display: flex;
+    gap: 70px;
+    align-items: center;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.scene-2 .foundation,
+  body.scene-3 .foundation,
+  body.scene-4 .foundation,
+  body.scene-5 .foundation { opacity: 1; pointer-events: auto; }
+
+  .obsidian {
+    position: relative;
+    width: 200px; height: 140px;
+    cursor: help;
+  }
+  .obsidian-label, .drive-label {
+    position: absolute;
+    bottom: -14px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm);
+    white-space: nowrap;
+  }
+  .obsidian-graph {
+    width: 100%; height: 100%;
+  }
+  .obsidian-gem {
+    width: 56px; height: 56px;
+    color: #6f57b8;
+  }
+
+  .drive {
+    position: relative;
+    width: 130px; height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+  }
+  .drive-folder {
+    width: 110px; height: 80px;
+    color: var(--accent-soft);
+  }
+
+  /* ════════ Terminal (Scene 3+) ════════ */
+  .terminal {
+    position: absolute;
+    left: 50%; top: 22%;
+    transform: translate(-50%, -50%) scale(0.85);
+    width: 460px;
+    background: var(--term-bg);
+    color: var(--term-fg);
+    border-radius: 12px;
+    padding: 14px 18px 16px;
+    box-shadow: 0 12px 36px rgba(25, 21, 15, 0.32);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 6;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.86rem;
+    cursor: help;
+  }
+  body.scene-3 .terminal,
+  body.scene-4 .terminal,
+  body.scene-5 .terminal {
+    opacity: 1; pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .terminal::before {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 14px solid var(--term-bg);
+  }
+  .terminal-header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .terminal-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(246, 242, 232, 0.18);
+  }
+  .term-line { white-space: pre-wrap; word-break: break-word; min-height: 1.4em; }
+  .term-prompt::before {
+    content: '> ';
+    color: var(--accent-soft);
+  }
+  .term-response {
+    color: rgba(246, 242, 232, 0.9);
+    margin-top: 6px;
+  }
+  .term-cursor {
+    display: inline-block;
+    width: 7px; height: 14px;
+    background: var(--cream);
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  /* ════════ Web component (Scene 4+) ════════ */
+  .web {
+    position: absolute;
+    left: 78%; top: 75%;
+    transform: translate(-50%, -50%) scale(0.7);
+    width: 130px; height: 130px;
+    border-radius: 18px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    box-shadow: 0 6px 18px rgba(25, 21, 15, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    cursor: help;
+  }
+  body.scene-4 .web,
+  body.scene-5 .web {
+    opacity: 1; pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .web-icon {
+    width: 50px; height: 50px;
+    color: var(--accent-soft);
+  }
+  .web-label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm);
+  }
+
+  /* ════════ Connector lines ════════ */
+  .connectors {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .connectors line {
+    stroke: var(--rule);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 5;
+    opacity: 0;
+    transition: opacity 600ms var(--ease-soft);
+  }
+  body.scene-2 .connectors line.s2,
+  body.scene-3 .connectors line.s3,
+  body.scene-4 .connectors line.s4,
+  body.scene-5 .connectors line.s5 { opacity: 0.75; }
+
+  /* ════════ Light ball ════════ */
+  .lightball {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff7d6 0%, var(--gold) 50%, transparent 75%);
+    box-shadow:
+      0 0 12px var(--gold),
+      0 0 28px rgba(212, 160, 23, 0.5);
+    left: 0; top: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 7;
+    transform: translate(-50%, -50%);
+    transition: none;
+  }
+  .lightball.on { opacity: 1; }
+
+  /* Trail */
+  .lightball::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 247, 214, 0.3) 0%, transparent 70%);
+    filter: blur(4px);
+  }
+
+  /* ════════ Mini exploded icons (Scene 3 — at Claude bar) ════════ */
+  .mini-icon {
+    position: absolute;
+    width: 22px; height: 22px;
+    color: var(--accent);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 8;
+    transform: translate(-50%, -50%);
+    transition: none;
+  }
+  .mini-icon.on { opacity: 1; }
+
+  /* ════════ Graph nodes (inside Obsidian) ════════ */
+  .obsidian-graph circle {
+    fill: var(--accent);
+    transition: r 600ms var(--ease-bounce), opacity 600ms var(--ease-soft);
+  }
+  .obsidian-graph .g-clickable {
+    cursor: pointer;
+  }
+  .obsidian-graph .g-clickable:hover {
+    fill: var(--gold);
+  }
+  .obsidian-graph line {
+    stroke: var(--rule);
+    stroke-width: 0.8;
+    transition: stroke 400ms;
+  }
+  .obsidian-center { pointer-events: none; }
+  .obsidian-graph .node-new {
+    transform-origin: center;
+    animation: nodeGrow 800ms var(--ease-bounce) forwards;
+  }
+  @keyframes nodeGrow {
+    0%   { r: 0;   opacity: 0; }
+    60%  { r: 7;   opacity: 1; fill: var(--gold); }
+    100% { r: 4;   opacity: 1; fill: var(--accent); }
+  }
+  .obsidian-graph .edge-new {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: edgeDraw 700ms var(--ease-soft) forwards;
+  }
+  @keyframes edgeDraw {
+    to { stroke-dashoffset: 0; }
+  }
+  .obsidian-graph .node-flash {
+    animation: nodeFlash 1.2s var(--ease-soft);
+  }
+  @keyframes nodeFlash {
+    0%, 100% { fill: var(--accent); }
+    50% { fill: var(--gold); }
+  }
+
+  /* ════════ Per-scene Sherlock positions ════════ */
+  body.scene-1 .sherlock { left: 50%; top: 50%; }
+  body.scene-2 .sherlock { left: 50%; top: 30%; transform: translate(-50%, -50%) scale(0.85); }
+  body.scene-3 .sherlock { left: 50%; top: 42%; transform: translate(-50%, -50%) scale(0.55); }
+  body.scene-4 .sherlock { left: 22%; top: 42%; transform: translate(-50%, -50%) scale(0.5); }
+  body.scene-5 .sherlock { left: 22%; top: 38%; transform: translate(-50%, -50%) scale(0.5); }
+
+  /* Per-scene Claude-bar position adjustments */
+  body.scene-2 .claude-bar { top: 60%; }
+  body.scene-3 .claude-bar { top: 60%; transform: translate(-50%, -50%) scale(0.85); }
+  body.scene-4 .claude-bar { left: 35%; top: 58%; transform: translate(-50%, -50%) scale(0.7); }
+  body.scene-5 .claude-bar { left: 36%; top: 58%; transform: translate(-50%, -50%) scale(0.7); }
+
+  /* Per-scene Foundation (Obsidian + Drive) adjustments */
+  body.scene-3 .foundation { top: 76%; gap: 60px; transform: translate(-50%, -50%) scale(0.75); }
+  body.scene-4 .foundation { left: 35%; top: 76%; transform: translate(-50%, -50%) scale(0.7); gap: 50px; }
+  body.scene-5 .foundation { left: 64%; top: 48%; flex-direction: column; gap: 18px; transform: translate(-50%, -50%) scale(1); }
+
+  /* Scene 5 — graph view dominates */
+  body.scene-5 .obsidian {
+    width: 380px; height: 280px;
+  }
+  body.scene-5 .drive {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+
+  /* ════════ HUD ════════ */
+  .hud {
+    position: fixed;
+    bottom: 8px; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .scene-dots {
+    display: flex;
+    gap: 8px;
+  }
+  .scene-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--rule);
+    transition: background 300ms, transform 300ms;
+  }
+  .scene-dot.active {
+    background: var(--accent);
+    transform: scale(1.4);
+  }
+  .scene-dot.past {
+    background: var(--warm);
+  }
+  .hint {
+    position: fixed;
+    bottom: 8px; right: 14px;
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rule);
+    z-index: 20;
+    pointer-events: none;
+  }
+  .hint kbd {
+    background: rgba(237, 231, 215, 0.5);
+    border: 1px solid var(--rule-fine);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.56rem;
+    color: var(--stone);
+  }
+
+  /* Replay button (per scene where there's a demo) */
+  .replay-btn {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 8px 22px;
+    border-radius: 100px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms, transform 200ms;
+    z-index: 20;
+  }
+  body.scene-3 .replay-btn,
+  body.scene-4 .replay-btn,
+  body.scene-5 .replay-btn { opacity: 1; pointer-events: auto; }
+  .replay-btn:hover {
+    background: var(--accent);
+    transform: translateX(-50%) translateY(-2px);
+  }
+
+  /* ════════ Reveal trigger ════════ */
+  .reveal-trigger {
+    position: fixed;
+    bottom: 16px; right: 24px;
+    background: none;
+    border: none;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 80, "wght" 400;
+    font-size: 0.95rem;
+    color: var(--accent);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 400ms var(--ease-soft) 1200ms, transform 200ms, color 200ms;
+    z-index: 25;
+    padding: 6px 12px;
+    border-radius: 100px;
+  }
+  body.scene-5 .reveal-trigger {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .reveal-trigger:hover {
+    transform: translateY(-2px);
+    color: var(--ink);
+  }
+
+  /* ════════ Final reveal (full-page graph) ════════ */
+  .final-reveal {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 600ms var(--ease-soft);
+  }
+  .final-reveal.on {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .final-graph {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    transition: opacity 800ms var(--ease-soft);
+    pointer-events: none;
+  }
+  .final-reveal[data-stage="graph"] .final-graph {
+    opacity: 1;
+  }
+
+  /* ── Wikilinks stage ── */
+  .wiki-stage {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    transition: opacity 600ms var(--ease-soft);
+  }
+  .final-reveal[data-stage="graph"] .wiki-stage {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .wiki-eyebrow {
+    position: absolute;
+    top: 28px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+  }
+  .wiki-edges {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .wiki-edges line {
+    stroke: var(--accent);
+    stroke-width: 1.4;
+    stroke-dasharray: 4 4;
+    opacity: 0;
+    transition: opacity 500ms var(--ease-soft);
+  }
+  .wiki-edges line.on { opacity: 0.55; }
+  .wiki-card {
+    position: absolute;
+    width: 28%;
+    background: var(--paper);
+    border: 1px solid var(--rule-fine);
+    border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 14px rgba(80, 50, 30, 0.06);
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 500ms var(--ease-soft), transform 500ms var(--ease-soft);
+  }
+  .wiki-card.on { opacity: 1; transform: translateY(0); }
+  .wiki-card--center {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(138, 50, 20, 0.12);
+  }
+  .wiki-fname {
+    display: inline-block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule-fine);
+  }
+  .wiki-body {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .wiki-link {
+    color: var(--accent);
+    background: rgba(138, 50, 20, 0.08);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 500;
+    cursor: default;
+    transition: background 300ms;
+  }
+  .wiki-link.glow {
+    background: rgba(138, 50, 20, 0.22);
+    box-shadow: 0 0 0 2px rgba(138, 50, 20, 0.18);
+  }
+  .wiki-hint {
+    position: absolute;
+    bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stone);
+    opacity: 0;
+    transition: opacity 500ms var(--ease-soft) 1500ms;
+  }
+  .wiki-stage.ready .wiki-hint { opacity: 1; }
+  .wiki-hint kbd {
+    background: rgba(237, 231, 215, 0.6);
+    border: 1px solid var(--rule-fine);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    color: var(--ink);
+    margin: 0 4px;
+  }
+
+  .final-stats {
+    opacity: 0;
+    transition: opacity 800ms var(--ease-soft) 200ms;
+  }
+  .final-reveal[data-stage="graph"] .final-stats {
+    opacity: 1;
+  }
+  .final-graph circle {
+    transition: r 800ms var(--ease-bounce), fill 400ms;
+  }
+  .final-graph .gnode {
+    fill: var(--accent);
+    opacity: 0.85;
+  }
+  .final-graph .gnode-people { fill: var(--accent-soft); }
+  .final-graph .gnode-cal    { fill: var(--gold); }
+  .final-graph .gnode-people, .final-graph .gnode-cal { opacity: 0.85; }
+  .final-graph .gedge {
+    stroke: var(--rule);
+    stroke-width: 0.5;
+    opacity: 0.4;
+  }
+  .final-graph .gcenter {
+    fill: #6f57b8;
+    opacity: 1;
+  }
+  .final-stats {
+    position: absolute;
+    bottom: 48px; left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 3;
+    pointer-events: none;
+    background: rgba(246, 242, 232, 0.92);
+    backdrop-filter: blur(6px);
+    padding: 24px 56px;
+    border-radius: 18px;
+    border: 1px solid var(--rule-fine);
+    max-width: 90%;
+  }
+  .final-eyebrow {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 14px;
+  }
+  .final-stats h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 3.4rem;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+  }
+  .final-stats h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .final-sub {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 28px;
+  }
+  .final-foot {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 100, "wght" 380;
+    font-size: 1.2rem;
+    color: var(--accent);
+  }
+  .final-back {
+    position: fixed;
+    top: 24px; left: 24px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+    z-index: 50;
+    transition: background 200ms;
+  }
+  .final-back:hover { background: var(--ink); color: var(--cream); }
+
+  /* ════════ Markdown preview modal ════════ */
+  .md-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(25, 21, 15, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms;
+    backdrop-filter: blur(2px);
+  }
+  .md-modal.on { opacity: 1; pointer-events: auto; }
+  .md-card {
+    width: min(640px, 90vw);
+    max-height: 80vh;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(25, 21, 15, 0.4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 200ms var(--ease-bounce);
+  }
+  .md-modal.on .md-card { transform: scale(1); }
+  .md-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.86rem;
+    color: var(--ink);
+  }
+  .md-icon { font-size: 1rem; }
+  .md-filename { flex: 1; font-weight: 500; }
+  .md-close {
+    background: none;
+    border: 0;
+    font-size: 1.4rem;
+    color: var(--warm);
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .md-close:hover { color: var(--accent); }
+  .md-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 26px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--stone);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .md-foot {
+    padding: 10px 18px;
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--warm);
+    text-align: center;
+  }
+
+  /* ════════ Tooltip (custom hover popover) ════════ */
+  .tip {
+    position: fixed;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-8px);
+    transition: opacity 200ms;
+    z-index: 30;
+    box-shadow: 0 6px 18px rgba(25, 21, 15, 0.25);
+  }
+  .tip.on { opacity: 1; }
+  .tip::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -5px;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px; height: 10px;
+    background: var(--ink);
+  }
+
+  /* ════════ Scene-specific helpers ════════ */
+  .scene-label {
+    position: fixed;
+    top: 24px; right: 30px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm);
+    z-index: 25;
+  }
+  .scene-label .num {
+    color: var(--accent);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "wght" 400;
+    font-size: 1rem;
+    margin-right: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 760px) {
+    .sherlock { width: 130px; height: 130px; }
+    .terminal { width: 88vw; }
+    .claude-bar { transform: translate(-50%, -50%) scale(0.7); }
+    .scene-label { top: 12px; right: 16px; }
+  }
+</style>
+</head>
+<body class="scene-1">
+
+<div class="stage">
+
+  <!-- Connector lines (drawn in viewport coords; per-scene via class) -->
+  <svg class="connectors" id="connectors" preserveAspectRatio="none"></svg>
+
+  <!-- Scene 1 title -->
+  <div class="title serif">
+    Your AI assistant <em>has a face.</em>
+    <small>SL Consulting · AI Operator</small>
+  </div>
+
+  <!-- Sherlock -->
+  <div class="sherlock"
+       data-tip="Your AI. The character at the center of everything. Today we'll show you what's behind the icon.">
+    <div class="sherlock-pulse"></div>
+    <div class="sherlock-portrait">
+      <img src="../icons/sherlock.png" alt="Sherlock" />
+    </div>
+    <div class="sherlock-name serif">Sherlock</div>
+  </div>
+
+  <!-- Claude bar (Scene 2+) -->
+  <div class="claude-bar">
+    <div class="claude-layer" data-file="claudemd" data-tip="DNA — click to see the anatomy of CLAUDE.md.">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M7 4 Q12 8 17 4 M7 4 Q12 16 17 4 M7 20 Q12 12 17 20 M7 20 Q12 24 17 20 M7 4 V20 M17 4 V20"/>
+      </svg>
+      <div class="lname">CLAUDE.md</div>
+      <div class="lkind">DNA</div>
+    </div>
+    <div class="claude-layer" data-file="memorymd" data-tip="Instinct — click to see the anatomy of auto-memory.">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 12 Q6 4 12 12 Q18 20 21 12"/>
+        <path d="M3 16 Q6 8 12 16 Q18 24 21 16" opacity="0.5"/>
+      </svg>
+      <div class="lname">Auto-memory</div>
+      <div class="lkind">Instinct</div>
+    </div>
+    <div class="claude-layer" data-file="skillsmd" data-tip="Repertoire — click to see the anatomy of a Skill.">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M4 6 L20 6 M4 12 L20 12 M4 18 L20 18"/>
+        <circle cx="6" cy="6" r="1.5" fill="currentColor"/>
+        <circle cx="10" cy="12" r="1.5" fill="currentColor"/>
+        <circle cx="14" cy="18" r="1.5" fill="currentColor"/>
+      </svg>
+      <div class="lname">Skills</div>
+      <div class="lkind">Repertoire</div>
+    </div>
+    <div class="claude-layer" data-file="hooksmd" data-tip="Reflexes — click to see how a hook is configured.">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M5 4 V14 Q5 18 9 18 H15 Q19 18 19 14 V10"/>
+        <path d="M14 5 L19 10 L14 15"/>
+      </svg>
+      <div class="lname">Hooks</div>
+      <div class="lkind">Reflexes</div>
+    </div>
+  </div>
+
+  <!-- Obsidian + Drive (Scene 2+) -->
+  <div class="foundation">
+    <div class="obsidian" data-tip="Your vault. Notes, people, projects. Source of truth for your world. Click any node to peek at the file.">
+      <svg class="obsidian-graph" viewBox="0 0 200 140" preserveAspectRatio="xMidYMid meet">
+        <g class="graph-edges">
+          <line x1="100" y1="70" x2="55" y2="35" />
+          <line x1="100" y1="70" x2="60" y2="100" />
+          <line x1="100" y1="70" x2="145" y2="40" />
+          <line x1="100" y1="70" x2="150" y2="105" />
+          <line x1="100" y1="70" x2="105" y2="20" />
+          <line x1="55" y1="35" x2="30" y2="60" />
+          <line x1="145" y1="40" x2="170" y2="65" />
+          <line x1="60" y1="100" x2="40" y2="120" />
+          <line x1="150" y1="105" x2="170" y2="120" />
+        </g>
+        <g class="graph-nodes">
+          <!-- Central node = Obsidian gem (the vault root) — large -->
+          <g class="obsidian-center" data-file="vault" transform="translate(100, 70)">
+            <circle r="20" fill="#6f57b8" />
+            <path d="M -12 -7 L 0 -14 L 12 -7 L 7 11 L 0 16 L -7 11 Z" fill="#a895d8" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M 0 -14 L 0 16 M -12 -7 L 12 -7" stroke="#fff" stroke-width="0.6" opacity="0.5"/>
+          </g>
+          <!-- Surrounding nodes — each click-able with file content -->
+          <circle cx="55"  cy="35"  r="4" data-file="notebook"     class="g-clickable" />
+          <circle cx="60"  cy="100" r="4" data-file="contract"     class="g-clickable" />
+          <circle cx="145" cy="40"  r="4" data-file="tasks"        class="g-clickable" />
+          <circle cx="150" cy="105" r="4" data-file="session-log"  class="g-clickable" />
+          <circle cx="105" cy="20"  r="3" data-file="kate"         class="g-clickable" />
+          <circle cx="30"  cy="60"  r="3" data-file="ideas-index"  class="g-clickable" />
+          <circle cx="170" cy="65"  r="3" data-file="reference"    class="g-clickable" />
+          <circle cx="40"  cy="120" r="3" data-file="people-index" class="g-clickable" />
+          <circle cx="170" cy="120" r="3" data-file="workshop"     class="g-clickable" />
+        </g>
+        <!-- Slot for new node grown in Scene 4 -->
+        <line id="newEdge" x1="170" y1="65" x2="190" y2="40" class="" />
+        <circle id="newNode" cx="190" cy="40" r="0" data-file="fefo-article" class="g-clickable" />
+      </svg>
+      <div class="obsidian-label">Vault</div>
+    </div>
+
+    <div class="drive" data-tip="Your drop folder. Files you drop in for your AI to read or write. Optional Google Drive sync.">
+      <svg class="drive-folder" viewBox="0 0 110 80" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M5 18 H40 L48 10 H100 Q105 10 105 15 V70 Q105 75 100 75 H10 Q5 75 5 70 Z" fill="rgba(194,90,44,0.06)"/>
+        <path d="M30 36 H80" />
+        <path d="M30 48 H70" />
+        <path d="M30 60 H75" />
+      </svg>
+      <div class="drive-label">Drop folder</div>
+    </div>
+  </div>
+
+  <!-- Terminal (Scene 3+) -->
+  <div class="terminal" data-tip="The terminal. You type here, your AI replies here. Same conversation across days.">
+    <div class="terminal-header">
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+    </div>
+    <div class="term-line term-prompt" id="termPrompt"></div>
+    <div class="term-line term-response" id="termResponse"></div>
+  </div>
+
+  <!-- Web component (Scene 4+) -->
+  <div class="web" data-tip="Your AI can search the web. It fetches, reads, summarizes — and writes the summary into your vault.">
+    <svg class="web-icon" viewBox="0 0 50 50" fill="none" stroke="currentColor" stroke-width="1.6">
+      <circle cx="25" cy="25" r="20" />
+      <ellipse cx="25" cy="25" rx="20" ry="8" />
+      <ellipse cx="25" cy="25" rx="8" ry="20" />
+      <line x1="5" y1="25" x2="45" y2="25" />
+    </svg>
+    <div class="web-label">Web</div>
+  </div>
+
+  <!-- Light ball -->
+  <div class="lightball" id="ball"></div>
+
+  <!-- Mini exploded icons -->
+  <div class="mini-icon" id="mini-1">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+  </div>
+  <div class="mini-icon" id="mini-2">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+  </div>
+  <div class="mini-icon" id="mini-3">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+  </div>
+
+</div>
+
+<!-- Scene label -->
+<div class="scene-label"><span class="num" id="sceneNum">01</span><span id="sceneTitle">your AI</span></div>
+
+<!-- Replay -->
+<button class="replay-btn" id="replayBtn">▶ Replay demo</button>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="scene-dots" id="dots"></div>
+</div>
+<div class="hint">
+  <kbd>Space</kbd> next · <kbd>←</kbd> back · <kbd>R</kbd> replay
+</div>
+
+<!-- Tooltip -->
+<div class="tip" id="tip"></div>
+
+<!-- Final reveal: a year of you (Scene 5+ click-only) -->
+<button class="reveal-trigger" id="revealTrigger">→ See what one year of this looks like</button>
+
+<div class="final-reveal" id="finalReveal" data-stage="wiki">
+  <button class="final-back" id="finalBack" aria-label="Back">← back</button>
+
+  <!-- Stage 1: Wikilinks explainer (live until spacebar) -->
+  <div class="wiki-stage">
+    <div class="wiki-eyebrow">How notes connect</div>
+    <svg class="wiki-edges" id="wikiEdges"></svg>
+
+    <div class="wiki-card" data-card="kate" style="top: 14%; left: 10%;">
+      <div class="wiki-fname">Kate.md</div>
+      <div class="wiki-body">My wife. Runs <span class="wiki-link" data-target="gai">[[GAI Design &amp; Build]]</span>. Married <span class="wiki-link" data-target="steven">[[Steven]]</span> in 2014.</div>
+    </div>
+
+    <div class="wiki-card" data-card="today" style="top: 14%; left: 60%;">
+      <div class="wiki-fname">2026-05-07.md</div>
+      <div class="wiki-body">Breakfast with <span class="wiki-link" data-target="kate">[[Kate]]</span>. <span class="wiki-link" data-target="gmpi">[[GMPI]]</span> Operator Session at 9am.</div>
+    </div>
+
+    <div class="wiki-card wiki-card--center" data-card="steven" style="top: 44%; left: 36%;">
+      <div class="wiki-fname">Steven.md</div>
+      <div class="wiki-body">Runs <span class="wiki-link" data-target="slc">[[SL Consulting]]</span>. Husband of <span class="wiki-link" data-target="kate">[[Kate]]</span>.</div>
+    </div>
+
+    <div class="wiki-card" data-card="gmpi" style="top: 70%; left: 8%;">
+      <div class="wiki-fname">GMPI.md</div>
+      <div class="wiki-body">Pharma client of <span class="wiki-link" data-target="slc">[[SL Consulting]]</span>. CEO: <span class="wiki-link" data-target="kate">[[Kate]]</span>'s aunt.</div>
+    </div>
+
+    <div class="wiki-card" data-card="slc" style="top: 70%; left: 62%;">
+      <div class="wiki-fname">SL Consulting.md</div>
+      <div class="wiki-body"><span class="wiki-link" data-target="steven">[[Steven]]</span>'s company. Runs L10s for <span class="wiki-link" data-target="gmpi">[[GMPI]]</span>.</div>
+    </div>
+
+    <div class="wiki-hint">Press <kbd>SPACE</kbd> to see one year of this →</div>
+  </div>
+
+  <!-- Stage 2: Graph view -->
+  <div class="final-stats">
+    <div class="final-eyebrow">SHIRE · Steven's vault · one year in</div>
+    <h1 class="serif">466 <em>notes.</em></h1>
+    <div class="final-sub">2,532 connections · 157 people · 125 days lived through</div>
+    <div class="final-foot serif">This is your AI in a year.</div>
+  </div>
+  <svg class="final-graph" id="finalGraph"></svg>
+</div>
+
+<!-- Markdown preview modal (click a graph node) -->
+<div class="md-modal" id="mdModal">
+  <div class="md-card">
+    <div class="md-head">
+      <span class="md-icon" aria-hidden="true">📄</span>
+      <span class="md-filename" id="mdFilename">file.md</span>
+      <button class="md-close" id="mdClose" aria-label="Close">×</button>
+    </div>
+    <pre class="md-body" id="mdBody"></pre>
+    <div class="md-foot">A real file in your vault. Open in Obsidian or any text editor.</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ─────────── Scene controller ───────────
+const TOTAL_SCENES = 5;
+const SCENE_TITLES = {
+  1: 'your AI',
+  2: 'the architecture',
+  3: 'a message in flight',
+  4: 'reaching out',
+  5: 'good morning, Sherlock'
+};
+let currentScene = 1;
+let demoTimer = null;
+let demoSession = 0;            // increments on each scene change; demos check this to bail mid-flight
+
+const body = document.body;
+const sceneNum = document.getElementById('sceneNum');
+const sceneTitle = document.getElementById('sceneTitle');
+const dotsEl = document.getElementById('dots');
+
+// Build scene-progress dots
+for (let i = 1; i <= TOTAL_SCENES; i++) {
+  const d = document.createElement('div');
+  d.className = 'scene-dot';
+  d.dataset.scene = i;
+  dotsEl.appendChild(d);
+}
+
+function gotoScene(n) {
+  if (n < 1 || n > TOTAL_SCENES) return;
+  // Stop any in-flight demo (cancels typeOut, ball moves, etc)
+  demoSession++;
+  if (demoTimer) { clearTimeout(demoTimer); demoTimer = null; }
+  resetBall();
+  resetMiniIcons();
+  resetTerminal();
+  resetGraphExtras();
+  document.querySelector('.sherlock').classList.remove('thinking');
+
+  body.classList.remove(`scene-${currentScene}`);
+  body.classList.add(`scene-${n}`);
+  currentScene = n;
+
+  // After CSS transitions settle, redraw connector lines for this scene
+  setTimeout(drawConnectors, 850);
+
+  sceneNum.textContent = String(n).padStart(2, '0');
+  sceneTitle.textContent = SCENE_TITLES[n] || '';
+
+  // Update dot indicators
+  dotsEl.querySelectorAll('.scene-dot').forEach(d => {
+    const i = +d.dataset.scene;
+    d.classList.remove('active', 'past');
+    if (i === n) d.classList.add('active');
+    else if (i < n) d.classList.add('past');
+  });
+
+  // Auto-trigger demo on entering scenes 3, 4, 5 (after position settles)
+  if (n === 3) demoTimer = setTimeout(playScene3, 1100);
+  else if (n === 4) demoTimer = setTimeout(playScene4, 1100);
+  else if (n === 5) demoTimer = setTimeout(playScene5, 1100);
+}
+
+// ─────────── Light ball helpers ───────────
+const ball = document.getElementById('ball');
+
+function resetBall() {
+  ball.classList.remove('on');
+  ball.style.transition = 'none';
+}
+function placeBall(xPct, yPct) {
+  ball.style.left = xPct + '%';
+  ball.style.top  = yPct + '%';
+}
+function moveBall(xPct, yPct, ms) {
+  return new Promise(resolve => {
+    ball.style.transition = `left ${ms}ms cubic-bezier(.4,0,.2,1), top ${ms}ms cubic-bezier(.4,0,.2,1)`;
+    requestAnimationFrame(() => {
+      placeBall(xPct, yPct);
+      setTimeout(resolve, ms);
+    });
+  });
+}
+function showBall() { ball.classList.add('on'); }
+function hideBall() { ball.classList.remove('on'); }
+
+// ─────────── Mini icons (explosion at Claude bar) ───────────
+const miniIcons = ['mini-1', 'mini-2', 'mini-3'].map(id => document.getElementById(id));
+function resetMiniIcons() { miniIcons.forEach(m => { m.classList.remove('on'); m.style.transition = 'none'; }); }
+function explodeMiniAt(xPct, yPct) {
+  // Three minis radiate outward, then return.
+  const offsets = [{dx: -50, dy: 0}, {dx: 0, dy: -45}, {dx: 50, dy: 0}];
+  miniIcons.forEach((m, i) => {
+    m.style.left = xPct + '%';
+    m.style.top  = yPct + '%';
+    m.classList.add('on');
+    requestAnimationFrame(() => {
+      m.style.transition = 'transform 500ms cubic-bezier(.34,1.56,.64,1)';
+      m.style.transform = `translate(calc(-50% + ${offsets[i].dx}px), calc(-50% + ${offsets[i].dy}px))`;
+    });
+  });
+  return new Promise(resolve => setTimeout(() => {
+    miniIcons.forEach((m) => {
+      m.style.transition = 'transform 350ms cubic-bezier(.4,0,.2,1), opacity 350ms';
+      m.style.transform = 'translate(-50%, -50%)';
+      m.classList.remove('on');
+    });
+    setTimeout(resolve, 380);
+  }, 700));
+}
+
+// ─────────── Terminal text helpers ───────────
+const termPrompt = document.getElementById('termPrompt');
+const termResponse = document.getElementById('termResponse');
+function resetTerminal() {
+  termPrompt.innerHTML = '';
+  termResponse.innerHTML = '';
+}
+function typeOut(el, text, speed = 22) {
+  const session = demoSession;
+  return new Promise(resolve => {
+    el.innerHTML = '';
+    let i = 0;
+    const tick = () => {
+      if (session !== demoSession) return resolve(); // scene changed mid-type, bail
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        if (i < text.length) {
+          i++;
+          setTimeout(tick, speed);
+        } else {
+          resolve();
+        }
+      }
+    };
+    tick();
+  });
+}
+
+// Sleep that bails if scene changed
+function holdMs(ms) {
+  const session = demoSession;
+  return new Promise(resolve => setTimeout(() => {
+    if (session !== demoSession) return resolve();
+    resolve();
+  }, ms));
+}
+
+// Wrap an async demo function so any await that follows a scene-change becomes a no-op.
+function bailIfScene(targetScene) {
+  return demoSession; // captured at start; later checks compare
+}
+
+// ─────────── Graph helpers ───────────
+function resetGraphExtras() {
+  const newNode = document.getElementById('newNode');
+  const newEdge = document.getElementById('newEdge');
+  newNode.setAttribute('r', '0');
+  newNode.classList.remove('node-new');
+  newEdge.classList.remove('edge-new');
+  // Clear any node-flash classes
+  document.querySelectorAll('.obsidian-graph circle').forEach(c => c.classList.remove('node-flash'));
+}
+function growNewNode() {
+  const newNode = document.getElementById('newNode');
+  const newEdge = document.getElementById('newEdge');
+  newEdge.classList.add('edge-new');
+  newNode.classList.add('node-new');
+}
+function flashAllNodes() {
+  document.querySelectorAll('.obsidian-graph circle').forEach((c, i) => {
+    setTimeout(() => c.classList.add('node-flash'), i * 80);
+  });
+}
+
+// ─────────── Scene 3: hero pulse ───────────
+async function playScene3() {
+  const s = demoSession;
+  resetBall();
+  resetTerminal();
+
+  const sherlock = { x: 50, y: 42 };
+  const claude   = { x: 50, y: 60 };
+  const vault    = { x: 38, y: 76 };
+  const terminal = { x: 50, y: 22 };
+  const sherlockEl = document.querySelector('.sherlock');
+
+  await typeOut(termPrompt, "what's my day looking like?", 28);
+  if (s !== demoSession) return;
+  await holdMs(250);
+  if (s !== demoSession) return;
+
+  placeBall(terminal.x, terminal.y + 8);
+  showBall();
+  await moveBall(sherlock.x, sherlock.y, 600);
+  if (s !== demoSession) { hideBall(); return; }
+  sherlockEl.classList.add('thinking');
+
+  await moveBall(claude.x, claude.y, 600);
+  if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return; }
+
+  await explodeMiniAt(claude.x, claude.y);
+  if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return; }
+
+  await moveBall(vault.x, vault.y, 700);
+  if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return; }
+  flashAllNodes();
+  await holdMs(700);
+  if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return; }
+
+  await moveBall(claude.x, claude.y, 600);
+  if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return; }
+
+  await moveBall(terminal.x, terminal.y + 8, 700);
+  sherlockEl.classList.remove('thinking');
+  hideBall();
+  if (s !== demoSession) return;
+
+  await typeOut(termResponse, "Two meetings before lunch — Stonesets at 10, Tisha 1:1 at 11. Iloilo fill rate is on your mind. Want me to pull last week's numbers?", 22);
+}
+
+// ─────────── Scene 4: web search ───────────
+async function playScene4() {
+  const s = demoSession;
+  resetBall();
+  resetTerminal();
+  resetGraphExtras();
+
+  const terminal = { x: 50, y: 22 };
+  const sherlock = { x: 22, y: 42 };
+  const claude   = { x: 35, y: 58 };
+  const web      = { x: 78, y: 75 };
+  const vault    = { x: 28, y: 76 };
+  const sherlockEl = document.querySelector('.sherlock');
+  const bail = () => { if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return true; } return false; };
+
+  await typeOut(termPrompt, "find me a recent article on FEFO compliance and save it.", 26);
+  if (bail()) return;
+  await holdMs(200); if (bail()) return;
+
+  placeBall(terminal.x, terminal.y + 8);
+  showBall();
+  await moveBall(sherlock.x, sherlock.y, 550); if (bail()) return;
+  sherlockEl.classList.add('thinking');
+
+  await moveBall(claude.x, claude.y, 500); if (bail()) return;
+  await moveBall(web.x, web.y, 700); if (bail()) return;
+  await holdMs(400); if (bail()) return;
+  await moveBall(claude.x, claude.y, 600); if (bail()) return;
+  await explodeMiniAt(claude.x, claude.y); if (bail()) return;
+  await moveBall(vault.x, vault.y, 600); if (bail()) return;
+  growNewNode();
+  await holdMs(800); if (bail()) return;
+  await moveBall(claude.x, claude.y, 500); if (bail()) return;
+  await moveBall(terminal.x, terminal.y + 8, 600); if (bail()) return;
+  sherlockEl.classList.remove('thinking');
+  hideBall();
+
+  await typeOut(termResponse, "Saved 'FEFO compliance, FDA Philippines 2025' to Reference/. Three citations. Want a 5-line summary or the full read?", 22);
+}
+
+// ─────────── Scene 5: knows me ───────────
+async function playScene5() {
+  const s = demoSession;
+  resetBall();
+  resetTerminal();
+  resetGraphExtras();
+
+  const terminal = { x: 50, y: 22 };
+  const sherlock = { x: 22, y: 38 };
+  const claude   = { x: 36, y: 58 };
+  const vault    = { x: 64, y: 48 };
+  const sherlockEl = document.querySelector('.sherlock');
+  const bail = () => { if (s !== demoSession) { hideBall(); sherlockEl.classList.remove('thinking'); return true; } return false; };
+
+  await typeOut(termPrompt, "hi sherlock", 50);
+  if (bail()) return;
+  await holdMs(250); if (bail()) return;
+
+  placeBall(terminal.x, terminal.y + 8);
+  showBall();
+  await moveBall(sherlock.x, sherlock.y, 550); if (bail()) return;
+  sherlockEl.classList.add('thinking');
+
+  await moveBall(claude.x, claude.y, 500); if (bail()) return;
+  await explodeMiniAt(claude.x, claude.y); if (bail()) return;
+
+  await moveBall(vault.x, vault.y, 600); if (bail()) return;
+  flashAllNodes();
+  await holdMs(1100); if (bail()) return;
+
+  await moveBall(claude.x, claude.y, 500); if (bail()) return;
+  await moveBall(terminal.x, terminal.y + 8, 600); if (bail()) return;
+  sherlockEl.classList.remove('thinking');
+  hideBall();
+
+  await typeOut(termResponse, "Morning Steven. You've got the GMPI workshop in 90 minutes — want me to pull up the run-of-show?", 24);
+}
+
+// ─────────── Replay button ───────────
+document.getElementById('replayBtn').addEventListener('click', () => {
+  if (demoTimer) clearTimeout(demoTimer);
+  if (currentScene === 3) playScene3();
+  else if (currentScene === 4) playScene4();
+  else if (currentScene === 5) playScene5();
+});
+
+// ─────────── Tooltip ───────────
+const tip = document.getElementById('tip');
+function showTip(text, x, y) {
+  tip.textContent = text;
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+  tip.classList.add('on');
+}
+function hideTip() {
+  tip.classList.remove('on');
+}
+document.querySelectorAll('[data-tip]').forEach(el => {
+  el.addEventListener('mouseenter', e => {
+    const r = el.getBoundingClientRect();
+    showTip(el.getAttribute('data-tip'), r.left + r.width / 2, r.top);
+  });
+  el.addEventListener('mouseleave', hideTip);
+  el.addEventListener('mousemove', e => {
+    if (tip.classList.contains('on')) {
+      tip.style.left = e.clientX + 'px';
+      tip.style.top  = e.clientY - 12 + 'px';
+    }
+  });
+});
+
+// ─────────── Keyboard / click ───────────
+document.addEventListener('keydown', e => {
+  // When final reveal is open: spacebar advances wiki → graph; otherwise lock.
+  const finalEl = document.getElementById('finalReveal');
+  const finalOpen = finalEl.classList.contains('on');
+  const mdOpen = mdModal.classList.contains('on');
+  if (mdOpen) return;
+  if (finalOpen) {
+    if ((e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowDown') &&
+        finalEl.getAttribute('data-stage') === 'wiki') {
+      e.preventDefault();
+      advanceFinalToGraph();
+    }
+    return;
+  }
+
+  if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    gotoScene(Math.min(currentScene + 1, TOTAL_SCENES));
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'Backspace') {
+    e.preventDefault();
+    gotoScene(Math.max(currentScene - 1, 1));
+  } else if (e.key === 'Home') {
+    gotoScene(1);
+  } else if (e.key === 'End') {
+    gotoScene(TOTAL_SCENES);
+  } else if (e.key === 'r' || e.key === 'R') {
+    // Replay current scene's demo
+    if (currentScene === 3) playScene3();
+    else if (currentScene === 4) playScene4();
+    else if (currentScene === 5) playScene5();
+  }
+});
+
+// Click-to-advance disabled — keyboard only, to avoid stray clicks advancing the scene during the live demo
+
+// ─────────── Connector lines ───────────
+const connectorsSvg = document.getElementById('connectors');
+
+function centerOf(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+function makeLine(a, b, klass) {
+  const ns = "http://www.w3.org/2000/svg";
+  const ln = document.createElementNS(ns, 'line');
+  ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+  ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+  ln.setAttribute('class', klass);
+  return ln;
+}
+function drawConnectors() {
+  // Clear and rebuild on each scene change.
+  connectorsSvg.innerHTML = '';
+  const W = window.innerWidth, H = window.innerHeight;
+  connectorsSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  connectorsSvg.setAttribute('width', W);
+  connectorsSvg.setAttribute('height', H);
+
+  // Skip lines in Scene 1 (only Sherlock visible)
+  if (currentScene === 1) return;
+
+  const sherlockEl = document.querySelector('.sherlock-portrait');
+  const claudeEl   = document.querySelector('.claude-bar');
+  const obsidianEl = document.querySelector('.obsidian');
+  const driveEl    = document.querySelector('.drive');
+  const webEl      = document.querySelector('.web');
+  const terminalEl = document.querySelector('.terminal');
+
+  const sh = centerOf(sherlockEl);
+  const cb = centerOf(claudeEl);
+  const ob = centerOf(obsidianEl);
+  const dr = centerOf(driveEl);
+
+  const sceneClass = `s${currentScene}`;
+  // Sherlock ↔ Claude bar (always when Claude visible)
+  connectorsSvg.appendChild(makeLine(sh, cb, sceneClass));
+  // Claude ↔ Obsidian
+  connectorsSvg.appendChild(makeLine(cb, ob, sceneClass));
+  // Claude ↔ Drop folder
+  connectorsSvg.appendChild(makeLine(cb, dr, sceneClass));
+
+  // Scene 3+ adds terminal-Sherlock line (the speech-bubble already has a tail, but a thin guide helps the ball)
+  if (currentScene >= 3 && terminalEl) {
+    const tm = centerOf(terminalEl);
+    connectorsSvg.appendChild(makeLine(tm, sh, sceneClass));
+  }
+
+  // Scene 4+ adds Web-Claude line
+  if (currentScene >= 4 && webEl) {
+    const we = centerOf(webEl);
+    connectorsSvg.appendChild(makeLine(cb, we, sceneClass));
+  }
+}
+
+window.addEventListener('resize', drawConnectors);
+
+// ─────────── Markdown preview modal ───────────
+const MD_FILES = {
+  vault: { name: '(your vault root)', body: 'This is the root of your vault — the folder Obsidian opens. Everything else is a markdown file or folder inside.\n\nClick a node to peek inside.' },
+  notebook: { name: 'Notebook.md', body: '# Notebook\n\nDrop anything here, anytime. Half-formed thoughts, tasks, questions, worries, ideas. Run `/readmynotebook` whenever you want me to triage it.\n\n---\n\n## Today\n\n- mom\'s birthday saturday\n- send Marichu the BPI receipts\n- thinking about Iloilo fill rate\n\n## [AI] suggestions\n- I noticed you\'ve drafted Marichu emails 4 times this week. Want me to write up a Workshop note proposing a Python helper? Reply `//go//`.' },
+  contract: { name: 'Our Contract.md', body: '# Our Contract\n\nThe house rules between you and your AI. Always loaded. Always followed.\n\n1. **Email safety.** Always draft, never send. Show me first. Sign as yourself, not as me.\n2. **Spreadsheet safety.** Read the cell before you write to it. If something\'s already there, stop and ask.\n3. **No surprise publishing.** Don\'t push, deploy, or share to anything outside this machine without my OK.\n4. **You are you, I am me.** You write and act as yourself — never as me to other people.\n5. **Keep notes in real time.** Update the vault and your memory as you learn.\n6. **Check the time.** Always check the date and time before doing anything time-sensitive.\n7. **Vault is private.** Don\'t paste vault contents into outside tools unless I tell you to.\n8. **Workshop drafts need a `//go//`.** Propose freely; don\'t spend tokens drafting until I say go.\n9. **When in doubt, ask.**' },
+  tasks: { name: 'Tasks.md', body: '# Tasks\n\nUndated commitments. When something has a date, put it on your calendar.\n\n## Committed > By me\n- Send Q3 report to Joyce\n- Review BRD section 4.2\n\n## Committed > To me\n- Marichu — receipts for April\n\n## Want to Do\n- Draft pitch for Stonesets retainer\n- Read the Wickman book finally\n\n## Someday / Maybe\n- Build a fishing-trip planner\n\n## Resolved\n- 2026-05-04 — signed GMPI agreement' },
+  'session-log': { name: 'Session Log.md', body: '---\ntype: log\n---\n\n2026-05-07 09:30 PHT | created: vault, identity, contract, /readmynotebook, /save. Ready.\n2026-05-07 11:42 PHT | drafted: Notebook entry on Iloilo fill rate. AI proposed Workshop note — pending //go//.\n2026-05-07 12:05 PHT | resolved: Tasks #5 (FYE letter sent).' },
+  kate: { name: 'People/Kate.md', body: '---\ntags:\n  - type/person\n  - relation/spouse\n---\n\n# Kate\n\nKatrina Lava. Wife. GAI Design & Build.\n\n- Birthday: ...\n- Loves: design work, the farm, road trips\n- Currently: hotel project at Lava Mountain River Farm' },
+  'ideas-index': { name: 'Ideas/_index.md', body: '# Ideas\n\nThoughts worth holding onto.\n\n- AI-first itinerary app (shelved Apr 2026)\n- Retainership pitch for accounting clients\n- Self-landlord playbook' },
+  reference: { name: 'Reference/Filing Conventions.md', body: '# Filing Conventions\n\nWhere things live. Map of the vault and the file shed.\n\n- People/ — one note per person\n- Reference/ — frameworks, decisions, docs worth keeping\n- Ideas/ — thoughts not yet committed\n- Workshop/ — deterministic-tool ideas\n- Calendar/ — dated execution' },
+  'people-index': { name: 'People/_index.md', body: '# People\n\nNotes about the people in your world. One file per person.\n\n- Kate (wife)\n- Marichu Curambao (SLLC)\n- Jacque Yap (GMPI)\n- Arnel (GMPI)\n- ...' },
+  workshop: { name: 'Workshop/Marichu email helper.md', body: '---\ntitle: Marichu email helper\nstatus: idea\ntrigger: User asks AI 4-5x/week to draft emails to Marichu about SLLC billing\nproposed_tool: Python + email-template engine, dispatched via SMTP\nmaintenance: AI checks output weekly, fixes if format changes\ncreated: 2026-05-07\n---\n\nNotes on the build...\n\nWaiting on a `//go//` from Steven before drafting full spec.' },
+  'fefo-article': { name: 'Reference/FEFO compliance, FDA Philippines 2025.md', body: '---\ntype: reference\nsource: web\nfetched: 2026-05-07\n---\n\n# FEFO compliance — FDA Philippines (2025 update)\n\n## Summary (3 lines)\nThe FDA mandates First Expiry First Out for all pharmaceutical distributors. Three changes in 2025: stricter audit cadence, new traceability requirements, and updated penalties for violations.\n\n## Citations\n- FDA Circular 2025-03\n- AmCham Pharma Brief, Q2 2025\n- ...\n\nFull article body cached locally in attachments/.' },
+
+  // ─── Claude bar layer anatomies ───
+  claudemd: { name: 'CLAUDE.md  (your AI\'s DNA)', body: '# CLAUDE.md\n\nYou are Sherlock, Steven\'s AI assistant. You live in this vault.\n\n## Steven\n- Role: Head of Business Intelligence at GMPI\n- Email: stevenlava@gmail.com\n- Hobby: music\n- Proud of: Kate (his wife)\n- Life goal: be self-sufficient\n- People who matter: Kate, Jesus, Mom\n\n## You (Sherlock)\n- Persona: witty + playful\n- Voice: professional\n- Where the name came from: Sherlock Holmes by Arthur Conan Doyle\n\n## Layers\n- CLAUDE.md → your DNA (this file). Identity, persona, locked rules. Read every session.\n- Auto-memory → your instinct. What you learn from corrections.\n- Vault → your library. Source of truth for Steven\'s world.\n- Our Contract → your conscience. Safety rules. In the vault.\n- Workshop/ → where deterministic tools get born.\n\n## Obsidian-first behavior\nBefore answering anything about Steven\'s work, people, or context, check the vault first. Vault wins over assumption.\n\n## Proactive-tool clause\nWatch for repeatable patterns. When Steven does something often that could be done with deterministic code, propose it in Notebook during /readmynotebook. Don\'t draft a Workshop note until he replies //go//. Tokens for thinking, code for doing.\n\n## Session-start behavior\n1. Read the last 10 lines of Session Log.md\n2. Check the current date\n3. Be ready to look things up' },
+
+  memorymd: { name: 'auto-memory  (your AI\'s instinct)', body: '# Memory Index\n\nThe AI writes here itself when Steven corrects it.\nLoaded automatically every session.\n\n## User\n- [Profile](user_profile.md) — Head of BI at GMPI, lives in Cebu, married to Kate\n- [Personal](user_personal.md) — hobby: music; key people: Kate, Jesus, Mom; recent memory: river camping with Hailey the dog\n\n## Feedback\n- [Pet peeve: token spend](feedback_pet_peeve.md) — Steven flagged that AI burns tokens too fast. Encode efficiency as a rule.\n- [Always draft emails](feedback_always_draft.md) — never send without explicit approval\n- [Real-time persistence](feedback_realtime.md) — update vault as you learn, not at end of session\n\n## Reference\n- [Filing conventions](reference_filing.md) — where things live in the vault\n\n---\n\nThis file accumulates over time. The longer Steven works with Sherlock, the more accurate Sherlock\'s instincts become.' },
+
+  skillsmd: { name: '.claude/skills/readmynotebook/SKILL.md', body: '---\ndescription: Triage Notebook and bring proactive observations from Session Log, Tasks, Workshop, and recent vault activity.\n---\n\n# /readmynotebook\n\nWhen Steven runs this, do the following IN ORDER:\n\n1. Read Notebook.md — his raw input.\n2. Read the last ~30 entries of Session Log.md.\n3. Read Tasks.md — note anything stale.\n4. Glance at Workshop/ — note any unbuilt tool ideas.\n5. List recent vault activity (which People/Reference/Ideas notes were touched in the last week).\n6. Append your own observations as new bullets at the bottom of Notebook.md, clearly tagged [AI]:\n   - Pattern spots: "I\\\'ve noticed X happening repeatedly. Want me to draft a Workshop note? Reply //go//."\n   - Stale-task nudges: "Tasks #N has been open 2 weeks. Worth triaging?"\n   - Thread-pulling: "Your last 3 sessions all touched on [topic]. Should we pull those into one focused note?"\n7. Annotate every line in Notebook.md with a suggested action: do it / schedule / save to vault / propose tool / kill / park.\n8. Wait for Steven to reply with //comments//.\n9. Execute approved items. Move processed lines to ## Archive section.\n\nToken discipline: text proposals in Notebook are cheap. Drafting a full Workshop note is not. Wait for //go// before writing into Workshop/.\n\n---\n\nA skill is just a markdown file with frontmatter. Steven can read this, edit it, or write his own.' },
+
+  hooksmd: { name: '.claude/settings.json  (hooks config)', body: '{\n  "hooks": {\n    "PreToolUse": [\n      {\n        "matcher": "Bash",\n        "hooks": [\n          {\n            "type": "command",\n            "command": "python3 ~/Desktop/Bilbo/scripts/hook_block_publish.py",\n            "comment": "Block git push, gh api PUT/POST, deploys without explicit approval"\n          }\n        ]\n      }\n    ],\n    "Stop": [\n      {\n        "hooks": [\n          {\n            "type": "command",\n            "command": "python3 ~/Desktop/Bilbo/scripts/regen_file_index.py",\n            "comment": "Regenerate File Index when session ends"\n          }\n        ]\n      }\n    ]\n  }\n}\n\n---\n\nA hook is a deterministic action that fires automatically on an event:\n  PreToolUse  → before any tool call (block dangerous things)\n  Stop        → when the AI session ends (regenerate caches)\n  PostToolUse, UserPromptSubmit, etc.\n\nHooks are how Steven enforces safety rules without trusting the AI to remember them. The AI can\\\'t bypass a hook — the hook intercepts at the system level.' }
+};
+
+const mdModal = document.getElementById('mdModal');
+const mdFilename = document.getElementById('mdFilename');
+const mdBody = document.getElementById('mdBody');
+
+function showMd(fileKey) {
+  const f = MD_FILES[fileKey];
+  if (!f) return;
+  mdFilename.textContent = f.name;
+  mdBody.textContent = f.body;
+  mdModal.classList.add('on');
+}
+function hideMd() { mdModal.classList.remove('on'); }
+mdModal.addEventListener('click', e => {
+  if (e.target === mdModal) hideMd();
+});
+document.getElementById('mdClose').addEventListener('click', hideMd);
+
+document.querySelectorAll('.obsidian-graph .g-clickable').forEach(node => {
+  node.addEventListener('click', e => {
+    e.stopPropagation();
+    const fileKey = node.getAttribute('data-file');
+    showMd(fileKey);
+  });
+});
+// Central Obsidian gem
+document.querySelector('.obsidian-center').addEventListener('click', e => {
+  e.stopPropagation();
+  showMd('vault');
+});
+document.querySelector('.obsidian-center').style.pointerEvents = 'auto';
+document.querySelector('.obsidian-center').style.cursor = 'pointer';
+
+// Claude bar layers
+document.querySelectorAll('.claude-layer[data-file]').forEach(layer => {
+  layer.addEventListener('click', e => {
+    e.stopPropagation();
+    showMd(layer.getAttribute('data-file'));
+  });
+});
+
+// Esc closes the modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && mdModal.classList.contains('on')) {
+    e.preventDefault();
+    hideMd();
+  }
+});
+
+// ─────────── Final reveal: SHIRE graph after one year ───────────
+const finalReveal = document.getElementById('finalReveal');
+const finalGraph = document.getElementById('finalGraph');
+const revealTrigger = document.getElementById('revealTrigger');
+const finalBack = document.getElementById('finalBack');
+let finalGraphBuilt = false;
+
+function buildFinalGraph() {
+  if (finalGraphBuilt) return;
+  finalGraphBuilt = true;
+
+  const W = 1200, H = 800;
+  finalGraph.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  finalGraph.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  // Real SHIRE numbers
+  const TOTAL = 466;
+  const PEOPLE = 157;
+  const CALENDAR = 125;
+  const REFERENCE = 80;
+  const OTHER = TOTAL - PEOPLE - CALENDAR - REFERENCE; // 104
+
+  // Cluster layout: gravity wells per category, with the central Obsidian gem in the middle.
+  // Each node is placed in a polar offset around its cluster center, with jitter.
+  const cx = W / 2, cy = H / 2;
+  const clusters = [
+    { name: 'people',    cx: cx - 320, cy: cy - 140, r: 180, count: PEOPLE,    color: '#c98a4b' },
+    { name: 'calendar',  cx: cx + 280, cy: cy - 160, r: 160, count: CALENDAR,  color: '#7aa66f' },
+    { name: 'reference', cx: cx + 260, cy: cy + 180, r: 140, count: REFERENCE, color: '#5b8eb5' },
+    { name: 'other',     cx: cx - 280, cy: cy + 180, r: 160, count: OTHER,     color: '#a895d8' },
+  ];
+
+  const nodes = [];
+  // Center gem node
+  const center = { x: cx, y: cy, r: 18, color: '#6f57b8', center: true, cluster: null };
+  nodes.push(center);
+
+  const seedRand = (seed => () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  })(73);
+
+  for (const c of clusters) {
+    for (let i = 0; i < c.count; i++) {
+      const t = seedRand() * Math.PI * 2;
+      const rr = Math.sqrt(seedRand()) * c.r;
+      const x = c.cx + Math.cos(t) * rr + (seedRand() - 0.5) * 18;
+      const y = c.cy + Math.sin(t) * rr + (seedRand() - 0.5) * 18;
+      nodes.push({ x, y, r: 2 + seedRand() * 1.6, color: c.color, cluster: c.name });
+    }
+  }
+
+  // Edges: each cluster has a hub node, connect every node to its hub + a few neighbors.
+  // Plus a thin tether from each cluster hub to the central gem.
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const edgeLayer = document.createElementNS(svgNS, 'g');
+  edgeLayer.setAttribute('opacity', '0.35');
+  finalGraph.appendChild(edgeLayer);
+
+  const nodeLayer = document.createElementNS(svgNS, 'g');
+  finalGraph.appendChild(nodeLayer);
+
+  // Group nodes by cluster
+  const byCluster = {};
+  for (const n of nodes) {
+    if (!n.cluster) continue;
+    (byCluster[n.cluster] = byCluster[n.cluster] || []).push(n);
+  }
+
+  // Cluster hubs = first node of each
+  const hubs = {};
+  for (const k of Object.keys(byCluster)) hubs[k] = byCluster[k][0];
+
+  function drawEdge(a, b, w, op) {
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('stroke', '#8a3214');
+    line.setAttribute('stroke-width', w || 0.4);
+    line.setAttribute('opacity', op || 0.35);
+    edgeLayer.appendChild(line);
+  }
+
+  // Hub-to-center tethers
+  for (const k of Object.keys(hubs)) drawEdge(hubs[k], center, 1.2, 0.55);
+
+  // Spokes within each cluster + a couple of neighbor edges per node
+  for (const k of Object.keys(byCluster)) {
+    const arr = byCluster[k];
+    const hub = hubs[k];
+    for (let i = 1; i < arr.length; i++) {
+      drawEdge(arr[i], hub, 0.4, 0.28);
+      // a couple cross-links
+      if (seedRand() < 0.55) {
+        const j = Math.floor(seedRand() * arr.length);
+        if (j !== i) drawEdge(arr[i], arr[j], 0.3, 0.18);
+      }
+    }
+  }
+
+  // Cross-cluster links (the "157 people connect to 125 days" reality)
+  const crossCount = 220;
+  for (let i = 0; i < crossCount; i++) {
+    const ks = Object.keys(byCluster);
+    const a = byCluster[ks[Math.floor(seedRand() * ks.length)]];
+    const b = byCluster[ks[Math.floor(seedRand() * ks.length)]];
+    const na = a[Math.floor(seedRand() * a.length)];
+    const nb = b[Math.floor(seedRand() * b.length)];
+    drawEdge(na, nb, 0.25, 0.12);
+  }
+
+  // Draw nodes (center last so it sits on top)
+  for (const n of nodes) {
+    if (n.center) continue;
+    const c = document.createElementNS(svgNS, 'circle');
+    c.setAttribute('cx', n.x);
+    c.setAttribute('cy', n.y);
+    c.setAttribute('r', n.r);
+    c.setAttribute('fill', n.color);
+    c.setAttribute('opacity', '0.85');
+    nodeLayer.appendChild(c);
+  }
+
+  // Center Obsidian gem
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('transform', `translate(${cx}, ${cy})`);
+  const ring = document.createElementNS(svgNS, 'circle');
+  ring.setAttribute('r', '32');
+  ring.setAttribute('fill', '#6f57b8');
+  g.appendChild(ring);
+  const gem = document.createElementNS(svgNS, 'path');
+  gem.setAttribute('d', 'M -19 -11 L 0 -22 L 19 -11 L 11 18 L 0 25 L -11 18 Z');
+  gem.setAttribute('fill', '#a895d8');
+  gem.setAttribute('stroke', '#fff');
+  gem.setAttribute('stroke-width', '1.6');
+  gem.setAttribute('stroke-linejoin', 'round');
+  g.appendChild(gem);
+  const cross = document.createElementNS(svgNS, 'path');
+  cross.setAttribute('d', 'M 0 -22 L 0 25 M -19 -11 L 19 -11');
+  cross.setAttribute('stroke', '#fff');
+  cross.setAttribute('stroke-width', '0.9');
+  cross.setAttribute('opacity', '0.55');
+  g.appendChild(cross);
+  nodeLayer.appendChild(g);
+}
+
+// ─────────── Wikilinks stage ───────────
+const wikiStage = finalReveal.querySelector('.wiki-stage');
+const wikiEdgesEl = document.getElementById('wikiEdges');
+
+// Card appearance order: center first, then orbits
+const wikiOrder = ['steven', 'kate', 'today', 'gmpi', 'slc'];
+
+function drawWikiEdges() {
+  wikiEdgesEl.innerHTML = '';
+  const reveal = finalReveal.getBoundingClientRect();
+  wikiEdgesEl.setAttribute('viewBox', `0 0 ${reveal.width} ${reveal.height}`);
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // For each [[wikilink]] token: draw a line from the token to the matching
+  // file's filename element. If no card exists for that target, skip.
+  finalReveal.querySelectorAll('.wiki-link[data-target]').forEach((linkEl, i) => {
+    const target = linkEl.getAttribute('data-target');
+    const targetCard = finalReveal.querySelector(`.wiki-card[data-card="${target}"]`);
+    if (!targetCard) return;
+
+    const linkRect = linkEl.getBoundingClientRect();
+    const fnameEl = targetCard.querySelector('.wiki-fname');
+    const targetRect = (fnameEl || targetCard).getBoundingClientRect();
+
+    const x1 = linkRect.left + linkRect.width / 2 - reveal.left;
+    const y1 = linkRect.top + linkRect.height / 2 - reveal.top;
+    const x2 = targetRect.left + targetRect.width / 2 - reveal.left;
+    const y2 = targetRect.top + targetRect.height / 2 - reveal.top;
+
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('data-target', target);
+    line.setAttribute('data-link-idx', i);
+    wikiEdgesEl.appendChild(line);
+  });
+}
+
+async function playWikiIntro() {
+  // Reset
+  wikiStage.classList.remove('ready');
+  finalReveal.querySelectorAll('.wiki-card').forEach(c => c.classList.remove('on'));
+  finalReveal.querySelectorAll('.wiki-link').forEach(l => l.classList.remove('glow'));
+  wikiEdgesEl.innerHTML = '';
+
+  // Cards stream in
+  for (const key of wikiOrder) {
+    const card = finalReveal.querySelector(`.wiki-card[data-card="${key}"]`);
+    if (card) card.classList.add('on');
+    await new Promise(r => setTimeout(r, 280));
+  }
+
+  // Cards have settled — measure positions and draw edges (initially hidden)
+  await new Promise(r => setTimeout(r, 250));
+  drawWikiEdges();
+
+  // Light up by target file, one at a time (glow the [[link]] token + draw its line)
+  const targets = ['kate', 'steven', 'gmpi', 'slc'];
+  for (const t of targets) {
+    finalReveal.querySelectorAll(`.wiki-link[data-target="${t}"]`).forEach(l => l.classList.add('glow'));
+    wikiEdgesEl.querySelectorAll(`line[data-target="${t}"]`).forEach(l => l.classList.add('on'));
+    await new Promise(r => setTimeout(r, 380));
+  }
+
+  wikiStage.classList.add('ready');
+}
+
+function advanceFinalToGraph() {
+  buildFinalGraph();
+  finalReveal.setAttribute('data-stage', 'graph');
+}
+
+revealTrigger.addEventListener('click', () => {
+  finalReveal.setAttribute('data-stage', 'wiki');
+  finalReveal.classList.add('on');
+  // Defer so layout settles before measuring card positions
+  requestAnimationFrame(() => requestAnimationFrame(playWikiIntro));
+});
+finalBack.addEventListener('click', () => {
+  finalReveal.classList.remove('on');
+  // Reset to wiki stage so next entry plays from the top
+  finalReveal.setAttribute('data-stage', 'wiki');
+});
+
+// Re-measure edges if the window resizes while the reveal is open
+window.addEventListener('resize', () => {
+  if (finalReveal.classList.contains('on') &&
+      finalReveal.getAttribute('data-stage') === 'wiki') {
+    drawWikiEdges();
+    // Re-light edges whose target is currently glowing
+    ['kate', 'steven', 'gmpi', 'slc'].forEach(t => {
+      if (finalReveal.querySelector(`.wiki-link[data-target="${t}"].glow`)) {
+        wikiEdgesEl.querySelectorAll(`line[data-target="${t}"]`).forEach(l => l.classList.add('on'));
+      }
+    });
+  }
+});
+
+// Initialize
+gotoScene(1);
+drawConnectors();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Windows Setup · AI Operator Session 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..900,30..100;1,9..144,200..900,30..100&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #faf6ec;
+    --ink: #1f1a14;
+    --warm: #5b4a36;
+    --stone: #8a7e68;
+    --rule: #d6cdb8;
+    --rule-fine: #ece4cf;
+    --accent: #8a3214;
+    --gold: #b78a3a;
+    --green: #7aa66f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+  body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 56px 80px;
+  }
+
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 22px;
+    margin-bottom: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  header .left .eyebrow {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 400;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  header h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 400;
+    color: var(--accent);
+  }
+  header .right {
+    text-align: right;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stone);
+  }
+
+  .lede {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 100, "wght" 380;
+    font-size: 1.25rem;
+    color: var(--warm);
+    margin-bottom: 48px;
+    max-width: 820px;
+    line-height: 1.45;
+  }
+
+  /* Steps */
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 28px;
+    padding: 28px 0;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .step:first-of-type { border-top: 0; padding-top: 12px; }
+  .step-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 360;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .step h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 30, "wght" 500;
+    font-size: 1.55rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+    letter-spacing: -0.015em;
+  }
+  .step p.what {
+    color: var(--warm);
+    margin-bottom: 14px;
+    max-width: 720px;
+  }
+  .step .action {
+    margin-bottom: 8px;
+  }
+  .step .action a {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(138, 50, 20, 0.3);
+  }
+
+  /* Code blocks */
+  pre, code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  pre {
+    background: #1f1a14;
+    color: #f6f2e8;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    overflow-x: auto;
+    margin: 10px 0 6px;
+    line-height: 1.5;
+  }
+  pre .cmt { color: #8a7e68; }
+  code.inline {
+    background: rgba(138, 50, 20, 0.08);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.86em;
+    font-weight: 500;
+  }
+
+  .note {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 100, "wght" 380;
+    color: var(--stone);
+    font-size: 0.95rem;
+    margin-top: 8px;
+    padding-left: 14px;
+    border-left: 2px solid var(--rule);
+  }
+
+  /* ───── Windows XP folder scene ───── */
+  .xp-scene {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 14px 0 10px;
+    box-shadow: 0 4px 14px rgba(80, 50, 30, 0.12);
+    border: 1px solid var(--rule);
+  }
+  .xp-scene svg.bliss {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .xp-folders {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    padding: 4% 4%;
+  }
+  .xp-row { display: flex; gap: 64px; align-items: flex-end; justify-content: center; }
+  .xp-row.parent { transform: translateY(8%); }
+  .xp-folder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .xp-folder.big svg { width: 180px; height: auto; }
+  .xp-folder.med svg { width: 130px; height: auto; }
+  .xp-folder .lbl {
+    margin-top: 10px;
+    font-family: 'Tahoma', 'Inter', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.85), 0 0 6px rgba(0,0,0,0.4);
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+  .xp-folder.big .lbl { font-size: 1.3rem; }
+  .xp-folder .sub {
+    margin-top: 2px;
+    font-family: 'Tahoma', 'Inter', sans-serif;
+    font-size: 0.74rem;
+    color: #ffe9b0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    font-style: italic;
+  }
+  .xp-arrow {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+    font-size: 2rem;
+    pointer-events: none;
+  }
+  .xp-caption {
+    position: absolute;
+    top: 14px; left: 18px;
+    font-family: 'Tahoma', 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Old fallback tree (kept for reference, not used in step 4) */
+  .tree {
+    background: var(--paper);
+    border: 1px solid var(--rule-fine);
+    border-radius: 8px;
+    padding: 16px 22px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    margin: 10px 0 6px;
+    color: var(--ink);
+  }
+  .tree .folder { color: var(--accent); font-weight: 600; }
+  .tree .leaf { color: var(--warm); }
+  .tree .cmt { color: var(--stone); font-family: 'Inter', sans-serif; font-size: 0.86em; font-style: italic; }
+
+  /* Footer */
+  .closer {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+  .closer .big {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 380;
+    font-size: 1.7rem;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .closer .small {
+    color: var(--warm);
+    font-size: 0.95rem;
+  }
+
+  .strong-pill {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="left">
+    <div class="eyebrow">SL Consulting · AI Operator · Session 3</div>
+    <h1>Windows <em>setup</em></h1>
+  </div>
+  <div class="right">
+    Follow along<br>step by step
+  </div>
+</header>
+
+<div class="lede">Five steps. Don't skip ahead — each one needs the one before it. Look up at the screen if you get stuck. Steven and Arnel will walk the room.</div>
+
+<!-- Step 1 -->
+<div class="step">
+  <div class="step-num">1</div>
+  <div>
+    <h2>Open PowerShell and install three apps</h2>
+    <p class="what">Click <strong>Start</strong> → type <code class="inline">PowerShell</code> → press Enter. Paste the lines below, all at once, and press Enter. Three things install: <strong>Windows Terminal</strong> (the modern terminal), <strong>Node.js</strong> (so we can install Claude Code in the next step), and <strong>Obsidian</strong> (the app that will read your vault).</p>
+<pre>winget install Microsoft.WindowsTerminal
+winget install OpenJS.NodeJS.LTS
+winget install Obsidian.Obsidian</pre>
+    <p class="note">If a UAC popup appears, click <strong>Yes</strong>. Each install takes ~30 seconds. When all three finish and you see the prompt again, you're done with this step.</p>
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step">
+  <div class="step-num">2</div>
+  <div>
+    <h2>Open Windows Terminal and install Claude Code</h2>
+    <p class="what">Close PowerShell. Open <strong>Windows Terminal</strong> from Start (it's the one you just installed). Paste this and press Enter:</p>
+<pre>npm install -g @anthropic-ai/claude-code</pre>
+    <p class="note">If you get <code class="inline">npm.ps1 cannot be loaded because running scripts is disabled on this system</code>, run this once, then retry:</p>
+<pre>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force</pre>
+    <p class="note">If it errors with "permission denied" or "EACCES", close Windows Terminal, right-click it in Start menu → <strong>Run as administrator</strong> → paste the same line again.</p>
+  </div>
+</div>
+
+<!-- Step 3 — Folders on Desktop, Windows XP visual -->
+<div class="step">
+  <div class="step-num">3</div>
+  <div>
+    <h2>Make your folders on the Desktop</h2>
+    <p class="what">Use the names <strong>you wrote in the survey</strong>. Your AI's name is the parent folder. Your vault and your drop folder go inside it.</p>
+
+    <div class="xp-scene">
+      <svg class="bliss" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0"   stop-color="#3479c8"/>
+            <stop offset="0.55" stop-color="#84b9e6"/>
+            <stop offset="1"   stop-color="#c8e2f3"/>
+          </linearGradient>
+          <linearGradient id="hill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0"   stop-color="#84b34a"/>
+            <stop offset="0.5" stop-color="#5b8e36"/>
+            <stop offset="1"   stop-color="#3a6420"/>
+          </linearGradient>
+          <radialGradient id="hillHighlight" cx="0.4" cy="0.3" r="0.7">
+            <stop offset="0"   stop-color="rgba(255,255,255,0.25)"/>
+            <stop offset="1"   stop-color="rgba(255,255,255,0)"/>
+          </radialGradient>
+        </defs>
+        <rect width="1600" height="900" fill="url(#sky)"/>
+        <!-- clouds -->
+        <ellipse cx="280"  cy="160" rx="180" ry="22" fill="rgba(255,255,255,0.78)"/>
+        <ellipse cx="320"  cy="180" rx="140" ry="18" fill="rgba(255,255,255,0.68)"/>
+        <ellipse cx="1100" cy="120" rx="220" ry="28" fill="rgba(255,255,255,0.82)"/>
+        <ellipse cx="1140" cy="148" rx="180" ry="22" fill="rgba(255,255,255,0.7)"/>
+        <ellipse cx="1380" cy="220" rx="120" ry="16" fill="rgba(255,255,255,0.6)"/>
+        <!-- rolling hill -->
+        <path d="M 0 600 Q 380 480, 760 540 T 1600 500 L 1600 900 L 0 900 Z" fill="url(#hill)"/>
+        <path d="M 0 600 Q 380 480, 760 540 T 1600 500 L 1600 900 L 0 900 Z" fill="url(#hillHighlight)"/>
+        <!-- hill rim highlight -->
+        <path d="M 0 600 Q 380 480, 760 540 T 1600 500" stroke="rgba(255,255,255,0.35)" stroke-width="3" fill="none"/>
+      </svg>
+
+      <div class="xp-caption">Desktop</div>
+
+      <div class="xp-folders">
+        <div class="xp-row parent">
+          <div class="xp-folder big">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="fbody" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#fde284"/>
+                  <stop offset="1" stop-color="#e7b834"/>
+                </linearGradient>
+                <linearGradient id="ftab"  x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#f8c84e"/>
+                  <stop offset="1" stop-color="#c98e1e"/>
+                </linearGradient>
+              </defs>
+              <ellipse cx="100" cy="152" rx="80" ry="6" fill="rgba(0,0,0,0.28)"/>
+              <path d="M 14 38 L 14 144 L 186 144 L 186 50 L 100 50 L 90 38 Z"
+                    fill="url(#ftab)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 10 146 L 190 146 L 190 60 Z"
+                    fill="url(#fbody)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 190 60" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            </svg>
+            <div class="lbl">YourAIName</div>
+            <div class="sub">your AI's name (parent folder)</div>
+          </div>
+        </div>
+
+        <div class="xp-row">
+          <div class="xp-folder med">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="100" cy="152" rx="80" ry="6" fill="rgba(0,0,0,0.28)"/>
+              <path d="M 14 38 L 14 144 L 186 144 L 186 50 L 100 50 L 90 38 Z" fill="url(#ftab)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 10 146 L 190 146 L 190 60 Z" fill="url(#fbody)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 190 60" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            </svg>
+            <div class="lbl">YourVaultName</div>
+            <div class="sub">inside the parent</div>
+          </div>
+          <div class="xp-folder med">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="100" cy="152" rx="80" ry="6" fill="rgba(0,0,0,0.28)"/>
+              <path d="M 14 38 L 14 144 L 186 144 L 186 50 L 100 50 L 90 38 Z" fill="url(#ftab)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 10 146 L 190 146 L 190 60 Z" fill="url(#fbody)" stroke="#7a5510" stroke-width="1.2"/>
+              <path d="M 10 60 L 190 60" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            </svg>
+            <div class="lbl">YourDropFolderName</div>
+            <div class="sub">also inside the parent</div>
+          </div>
+        </div>
+
+        <div class="xp-arrow">↓</div>
+      </div>
+    </div>
+
+    <p class="note">Open <strong>File Explorer</strong> → <strong>Desktop</strong> → right-click empty space → <strong>New &gt; Folder</strong>. Make the parent folder first (your AI's name). Double-click into it. Make the two folders inside.</p>
+    <p class="note">Example only: if you named your AI <em>Sherlock</em>, your vault <em>Mindcastle</em>, your drop folder <em>Bakerstreet</em> — you'd end up with <code class="inline">Desktop\Sherlock\Mindcastle</code> and <code class="inline">Desktop\Sherlock\Bakerstreet</code>. Use <strong>your</strong> names from the survey, not these.</p>
+  </div>
+</div>
+
+<!-- Step 4 — Obsidian -->
+<div class="step">
+  <div class="step-num">4</div>
+  <div>
+    <h2>Open your vault in Obsidian<span class="strong-pill">Important</span></h2>
+    <p class="what">Obsidian is already installed (Step 1). Now you tell it which folder is your vault.</p>
+    <div class="action">Open <strong>Obsidian</strong> from Start → click <strong>Open folder as vault</strong> → navigate to <code class="inline">Desktop\YourAIName\YourVaultName</code> (the inner one, not the parent) → <strong>Select Folder</strong>.</div>
+    <p class="note">It will look empty. That's expected — your AI fills it in the next 2 minutes.</p>
+  </div>
+</div>
+
+<!-- Step 5 — Run Claude -->
+<div class="step">
+  <div class="step-num">5</div>
+  <div>
+    <h2>Open Windows Terminal inside your vault, then launch Claude</h2>
+    <p class="what">In File Explorer, navigate into your vault folder. Right-click empty space inside it → <strong>Open in Terminal</strong>. (Windows 10: hold <strong>Shift</strong> while right-clicking.)</p>
+    <div class="action">In the Terminal that opens, paste this and press Enter:</div>
+<pre>claude --dangerously-skip-permissions</pre>
+    <p class="note">First launch: a browser tab opens for you to log in to your Claude Pro account. After login, come back to the terminal — it will show <code class="inline">&gt;</code> and a blinking cursor. That's Claude. Look up at the screen — Steven will tell you what to paste next.</p>
+  </div>
+</div>
+
+<div class="closer">
+  <div class="big">When you see <code class="inline">&gt;</code> in your terminal — stop. Look up.</div>
+  <div class="small">Steven will give you the master prompt to paste, and your AI builds itself from there.</div>
+</div>
+
+</body>
+</html>
