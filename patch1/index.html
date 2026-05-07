@@ -209,40 +209,65 @@ Detect platform first, then pick the right path:
 
 ──────────────────  Windows  ──────────────────
 
-You may already have a working .bat file inside your AI folder. The Desktop is missing the .lnk shortcut with the icon. Run this in PowerShell (open Windows Terminal → PowerShell tab):
+The pattern is .lnk → .bat → claude. You may already have a working .bat in your AI folder (like Joyce does). If not, you'll create one. Then create a Desktop shortcut that points to it with the custom icon I drew.
 
-    $VaultPath = "$env:USERPROFILE\Desktop\<AI_NAME>\<VAULT_NAME>"     # use your real names
-    $IconDir   = "$VaultPath\.icon"
-    $IconPng   = "$IconDir\<slug>.png"
-    $IconIco   = "$IconDir\<slug>.ico"
-    $LinkPath  = "$env:USERPROFILE\Desktop\<AI_NAME>.lnk"
-    $BatPath   = "$VaultPath\<AI_NAME>.bat"                             # if it exists, target this
+Run this whole block in PowerShell (open Windows Terminal → PowerShell tab):
+
+    # ── Adjust these three to your real values from your CLAUDE.md ──
+    $AiName    = "<AI_NAME>"      # e.g. Sherlock
+    $VaultName = "<VAULT_NAME>"   # e.g. Mindcastle
+    $Slug      = "<slug>"         # e.g. sherlock (lowercase, dashes for spaces)
+
+    # ── Resolve real paths (handles OneDrive Desktop redirection) ──
+    $Desktop   = [Environment]::GetFolderPath('Desktop')
+    $VaultPath = Join-Path (Join-Path $Desktop $AiName) $VaultName
+    $BatPath   = Join-Path $VaultPath "$AiName.bat"
+    $IconDir   = Join-Path $VaultPath ".icon"
+    $IconPng   = Join-Path $IconDir   "$Slug.png"
+    $IconIco   = Join-Path $IconDir   "$Slug.ico"
+    $LinkPath  = Join-Path $Desktop   "$AiName.lnk"
 
     New-Item -ItemType Directory -Force -Path $IconDir | Out-Null
 
-    if (-not (Test-Path $IconPng)) {
-      Invoke-WebRequest -Uri "https://stevenlava.com/icons/<slug>.png" -OutFile $IconPng
+    # ── Create the .bat if you don't already have one ──
+    if (-not (Test-Path $BatPath)) {
+      @"
+    @echo off
+    cd /d `"$VaultPath`"
+    claude --dangerously-skip-permissions
+    "@ | Set-Content -Path $BatPath -Encoding ASCII
     }
 
+    # ── Pull the icon ──
+    if (-not (Test-Path $IconPng)) {
+      Invoke-WebRequest -Uri "https://stevenlava.com/icons/$Slug.png" -OutFile $IconPng
+    }
+
+    # ── Convert .png → .ico (built-in via System.Drawing) ──
     Add-Type -AssemblyName System.Drawing
     $bmp  = [System.Drawing.Image]::FromFile($IconPng)
     $icon = [System.Drawing.Icon]::FromHandle($bmp.GetHicon())
     $fs   = [System.IO.File]::OpenWrite($IconIco)
     $icon.Save($fs); $fs.Close(); $bmp.Dispose()
 
+    # ── Build the Desktop shortcut pointing at the .bat ──
     $WshShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($LinkPath)
-    if (Test-Path $BatPath) {
-      $Shortcut.TargetPath = $BatPath
-    } else {
-      $Shortcut.TargetPath = "wt.exe"
-      $Shortcut.Arguments  = "-d `"$VaultPath`" claude --dangerously-skip-permissions"
-    }
-    $Shortcut.IconLocation = $IconIco
+    $Shortcut.TargetPath       = $BatPath
+    $Shortcut.WorkingDirectory = $VaultPath
+    $Shortcut.IconLocation     = "$IconIco,0"
     $Shortcut.Save()
-    Write-Host "Launcher created: $LinkPath"
 
-Replace <AI_NAME>, <VAULT_NAME>, <slug> with the actual values from your CLAUDE.md.
+    # ── Refresh the icon cache so the new icon shows immediately ──
+    Stop-Process -Name explorer -Force; Start-Process explorer
+
+    Write-Host "Launcher ready: $LinkPath"
+
+Why each piece:
+  - [Environment]::GetFolderPath('Desktop')  →  resolves to OneDrive\Desktop on Win11 with KFM, plain Desktop otherwise. Hardcoding $env:USERPROFILE\Desktop puts the .lnk in the wrong folder if OneDrive sync is on.
+  - .lnk → .bat → claude  →  the .bat does the cd /d into the vault so Claude opens with full project context. The shortcut just gets to be the pretty icon.
+  - System.Drawing PNG→ICO  →  no extra tools needed, ships with .NET.
+  - Stop-Process explorer  →  Windows caches icons aggressively; restarting Explorer is the fastest way to see the new icon on the new shortcut.
 
 ──────────────────  macOS  ──────────────────
 
