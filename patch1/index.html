@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Patch 1 · AI Operator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,200..900,30..100;1,9..144,200..900,30..100&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #faf6ec;
+    --ink: #1f1a14;
+    --warm: #5b4a36;
+    --stone: #8a7e68;
+    --rule: #d6cdb8;
+    --rule-fine: #ece4cf;
+    --accent: #8a3214;
+    --gold: #b78a3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+  }
+  body { max-width: 880px; margin: 0 auto; padding: 48px 56px 96px; }
+
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 24px;
+    margin-bottom: 36px;
+  }
+  .eyebrow {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 400;
+    font-size: 3.4rem;
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    margin-bottom: 12px;
+  }
+  h1 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 400;
+    color: var(--accent);
+  }
+  .lede {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-variation-settings: "opsz" 96, "SOFT" 100, "wght" 380;
+    font-size: 1.2rem;
+    color: var(--warm);
+    max-width: 700px;
+    line-height: 1.45;
+  }
+
+  .copy-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .copy-btn {
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    border-radius: 100px;
+    padding: 12px 28px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms;
+  }
+  .copy-btn:hover { background: var(--accent); }
+  .copy-btn.done { background: #4a7a3a; }
+  .copy-hint {
+    font-size: 0.78rem;
+    color: var(--stone);
+    font-style: italic;
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  .prompt-box {
+    background: #1f1a14;
+    color: #f6f2e8;
+    padding: 22px 26px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 60vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 14px rgba(80, 50, 30, 0.12);
+  }
+
+  .nudge {
+    margin-top: 36px;
+    padding: 20px 24px;
+    background: var(--paper);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+  }
+  .nudge .label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .nudge p { color: var(--warm); font-size: 0.95rem; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--stone);
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">SL Consulting · AI Operator · Session 3</div>
+  <h1>Patch <em>1</em>.</h1>
+</header>
+
+<div class="lede">Three small upgrades for your AI. Copy the prompt below and paste it into your Claude Code session. Your AI will apply all three and report back.</div>
+
+<div style="height: 28px;"></div>
+
+<div class="copy-row">
+  <button class="copy-btn" id="copyBtn">Copy patch prompt</button>
+  <div class="copy-hint" id="copyHint">Paste into your AI's terminal</div>
+</div>
+
+<pre class="prompt-box" id="prompt">Hi. Three patches for you. Apply each in order, then report back. Use your own knowledge of your AI name, your slug, your vault path, and your drop folder — these are already in your CLAUDE.md. Don't ask me clarifying questions. Just execute.
+
+═══════════════════════════════════════════════════════════════
+Patch 1 — Always link with [[wikilinks]]
+═══════════════════════════════════════════════════════════════
+
+Going forward, whenever you write or edit ANY note in the vault, link related notes using Obsidian wikilinks: [[Note Title]]. People, places, projects, days, ideas, files — if a note exists or could plausibly exist, link to it. This builds the graph view over time.
+
+Apply now:
+
+(a) Open your CLAUDE.md (in the vault root). Add this section near the top, just after the "Who you are" / identity section:
+
+    ## Linking notes (mandatory)
+    Whenever I write or edit a note in this vault, I link related notes
+    using Obsidian wikilinks: [[Note Title]]. People, places, projects,
+    days, ideas — if a note exists or could plausibly exist, I link to it.
+    This builds the graph view over time. When in doubt, I add a link.
+
+(b) Create memory/feedback_wikilinks.md with the same rule framed as a feedback memory (frontmatter: name, description, type: feedback). Include a "Why" line and a "How to apply" line.
+
+(c) Add a one-line entry to memory/MEMORY.md under "## Feedback":
+    - [Wikilinks are mandatory](feedback_wikilinks.md) -- always [[link]] notes for graph view
+
+═══════════════════════════════════════════════════════════════
+Patch 2 — Actually populate the vault
+═══════════════════════════════════════════════════════════════
+
+Right now your vault is mostly empty. Time to fill it in with everything you already know about your user from your auto-memory (their name, hobby, proud_of, life_goal, key_people, recent_memory) and from their initial Notebook. Real notes, not stubs. Use [[wikilinks]] everywhere.
+
+Walk through and create at minimum:
+
+(a) People/<each name from key_people>.md — basic profile note. Link [[back to user]] in the body.
+
+(b) Memory/<short title for recent_memory>.md — write the recent_memory story as a real entry. Link to [[user]] and any [[people]] mentioned.
+
+(c) Goals/<life_goal>.md — the user's stated life goal, your read on what it implies, and any tactical sub-notes. Link [[back to user]].
+
+(d) Hobbies.md or Interests.md — the user's hobby and proud_of, framed as a real note. Link [[back to user]] and to any [[people]] involved.
+
+(e) <User's first name>.md — main profile note in the vault root. Link to all of the above. This is the "hub" note for the graph view.
+
+(f) Notebook.md (or Notebook/<today>.md) — the user's first_notebook items, each as a [[wikilinked]] line where appropriate. If "meeting with Sir Jack" appears, write it as "meeting with [[Sir Jack]]" and create a stub at People/Sir Jack.md.
+
+If you don't have full info on something, create the note as a short stub with good [[links]] — empty notes with links are better than no notes. The user will fill them in over time.
+
+═══════════════════════════════════════════════════════════════
+Patch 3 — Desktop launcher (so the user can double-click to start me)
+═══════════════════════════════════════════════════════════════
+
+Your user needs a Desktop launcher with the custom icon I drew for you. The icon URL is:
+    https://stevenlava.com/icons/<your-slug>.png
+where <your-slug> is your AI name lowercased and dash-separated. Look up your own slug from your CLAUDE.md or auto-memory.
+
+Detect platform first, then pick the right path:
+
+──────────────────  Windows  ──────────────────
+
+You may already have a working .bat file inside your AI folder. The Desktop is missing the .lnk shortcut with the icon. Run this in PowerShell (open Windows Terminal → PowerShell tab):
+
+    $VaultPath = "$env:USERPROFILE\Desktop\<AI_NAME>\<VAULT_NAME>"     # use your real names
+    $IconDir   = "$VaultPath\.icon"
+    $IconPng   = "$IconDir\<slug>.png"
+    $IconIco   = "$IconDir\<slug>.ico"
+    $LinkPath  = "$env:USERPROFILE\Desktop\<AI_NAME>.lnk"
+    $BatPath   = "$VaultPath\<AI_NAME>.bat"                             # if it exists, target this
+
+    New-Item -ItemType Directory -Force -Path $IconDir | Out-Null
+
+    if (-not (Test-Path $IconPng)) {
+      Invoke-WebRequest -Uri "https://stevenlava.com/icons/<slug>.png" -OutFile $IconPng
+    }
+
+    Add-Type -AssemblyName System.Drawing
+    $bmp  = [System.Drawing.Image]::FromFile($IconPng)
+    $icon = [System.Drawing.Icon]::FromHandle($bmp.GetHicon())
+    $fs   = [System.IO.File]::OpenWrite($IconIco)
+    $icon.Save($fs); $fs.Close(); $bmp.Dispose()
+
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($LinkPath)
+    if (Test-Path $BatPath) {
+      $Shortcut.TargetPath = $BatPath
+    } else {
+      $Shortcut.TargetPath = "wt.exe"
+      $Shortcut.Arguments  = "-d `"$VaultPath`" claude --dangerously-skip-permissions"
+    }
+    $Shortcut.IconLocation = $IconIco
+    $Shortcut.Save()
+    Write-Host "Launcher created: $LinkPath"
+
+Replace <AI_NAME>, <VAULT_NAME>, <slug> with the actual values from your CLAUDE.md.
+
+──────────────────  macOS  ──────────────────
+
+If ~/Desktop/<AI_NAME>.app exists with a proper icon, you're done — confirm and skip. Otherwise rebuild:
+
+    APP="$HOME/Desktop/<AI_NAME>.app"
+    SLUG="<your-slug>"
+    VAULT="<vault-name>"
+    ICON_PNG="$HOME/Desktop/<AI_NAME>/$VAULT/.icon/$SLUG.png"
+
+    mkdir -p "$(dirname "$ICON_PNG")"
+    [ -f "$ICON_PNG" ] || curl -sSL "https://stevenlava.com/icons/$SLUG.png" -o "$ICON_PNG"
+
+    ICONSET="/tmp/$SLUG.iconset"
+    rm -rf "$ICONSET"; mkdir -p "$ICONSET"
+    for size in 16 32 64 128 256 512; do
+      sips -z $size $size "$ICON_PNG" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
+      sips -z $((size*2)) $((size*2)) "$ICON_PNG" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
+    done
+    iconutil -c icns "$ICONSET" -o "/tmp/$SLUG.icns"
+
+    SCRIPT="tell application \"Terminal\" to do script \"cd ~/Desktop/<AI_NAME>/$VAULT && claude --dangerously-skip-permissions\""
+    osacompile -o "$APP" -e "$SCRIPT"
+    cp "/tmp/$SLUG.icns" "$APP/Contents/Resources/applet.icns"
+    touch "$APP"
+    killall Finder
+
+═══════════════════════════════════════════════════════════════
+When all three are done
+═══════════════════════════════════════════════════════════════
+
+Append to your Session Log.md (one line, today's PHT timestamp):
+    [date +PHT] | patched: [[wikilinks]] rule + vault populated + desktop launcher
+
+Then reply to me in plain language with what you did, especially:
+  - which notes you created in the vault (just the names)
+  - whether the desktop launcher is now visible with the right icon
+  - anything that didn't work and why
+</pre>
+
+<div class="nudge">
+  <div class="label">If your AI gets stuck</div>
+  <p>If your AI asks for paths or your slug — your slug is your AI's name lowercased (Sherlock → sherlock, JohnWick → johnwick). The icon URL is always <code>stevenlava.com/icons/&lt;slug&gt;.png</code>. Tell it to just open its own CLAUDE.md to confirm.</p>
+</div>
+
+<footer>
+  stevenlava.com / patch1 · SL Consulting · AI Operator
+</footer>
+
+<script>
+  const btn = document.getElementById('copyBtn');
+  const hint = document.getElementById('copyHint');
+  const promptEl = document.getElementById('prompt');
+
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(promptEl.textContent);
+      btn.classList.add('done');
+      btn.textContent = '✓ Copied';
+      hint.textContent = 'Now paste into your Claude Code terminal';
+      setTimeout(() => {
+        btn.classList.remove('done');
+        btn.textContent = 'Copy patch prompt';
+        hint.textContent = 'Paste into your AI\'s terminal';
+      }, 4000);
+    } catch (e) {
+      hint.textContent = 'Couldn\'t auto-copy. Select the text below manually.';
+    }
+  });
+</script>
+
+</body>
+</html>
