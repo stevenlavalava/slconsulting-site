@@ -920,12 +920,16 @@
                 padding-bottom: 0;
             }
             .doors.open .door + .door { border-top-color: transparent; }
-            .door.expanded { min-height: 60vh; }
+            /* expanded door must size to its content — an explicit min-height
+               kills flex auto-sizing and overflow:hidden eats the animations */
+            .door.expanded { flex: 0 0 auto; min-height: 0; }
             .door.expanded .door-detail { max-height: none; overflow: visible; }
             .demo-tiles { grid-template-columns: 1fr; gap: 20px; margin-top: 24px; }
             .form-row { grid-template-columns: 1fr; }
             .door.contacting .door-detail { max-height: none; overflow: visible; }
             .aug-cols { grid-template-columns: 1fr; gap: 28px; }
+            .artifact.pos-tr { top: -16px; right: -6px; }
+            .artifact.pos-bl { bottom: -16px; left: -6px; }
             .detail-foot { margin-top: 28px; }
             .door-close { top: 18px; right: 20px; }
         }
