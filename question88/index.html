@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Discovery — SL Consulting</title>
+<style>
+  :root{
+    --cream:#faf6ef; --card:#fffdf9; --ink:#3a3532; --mute:#8a827b;
+    --terra:#c05f3c; --terra-d:#a44e2f; --line:#e7ded1; --ok:#5c7a52;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  .bar{position:fixed;top:0;left:0;height:4px;background:var(--terra);width:0;transition:width .35s ease;z-index:10}
+  .wrap{min-height:100dvh;display:flex;flex-direction:column;max-width:680px;margin:0 auto;padding:0 22px}
+  header{padding:20px 0 0;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);font-weight:700}
+  .count{font-size:12px;color:var(--mute)}
+  main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+  .slide{display:none;animation:rise .4s ease both}
+  .slide.on{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .kick{color:var(--terra);font-weight:700;font-size:13px;letter-spacing:.04em;margin:0 0 10px}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:30px;line-height:1.2;margin:0 0 8px}
+  h2{font-family:Georgia,serif;font-weight:600;font-size:23px;line-height:1.28;margin:0 0 6px}
+  .hint{color:var(--mute);font-size:15px;margin:0 0 20px}
+  input[type=text],input[type=email],textarea{
+    width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+    padding:14px 16px;font:inherit;color:var(--ink);outline:none;transition:border-color .15s;
+  }
+  input:focus,textarea:focus{border-color:var(--terra)}
+  textarea{min-height:120px;resize:vertical}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+  .chip{font-size:13px;color:var(--mute);background:var(--card);border:1px solid var(--line);
+        border-radius:999px;padding:6px 12px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+       padding:15px 16px;cursor:pointer;font-size:16px;transition:.15s}
+  .opt:hover{border-color:var(--terra)}
+  .opt.sel{border-color:var(--terra);background:#fff5ef;color:var(--terra-d);font-weight:600}
+  nav{display:flex;align-items:center;gap:14px;padding:18px 0 30px}
+  button{font:inherit;cursor:pointer;border:none;border-radius:11px;padding:13px 26px;font-weight:600}
+  .next{background:var(--terra);color:#fff}
+  .next:hover{background:var(--terra-d)}
+  .back{background:none;color:var(--mute);padding:13px 6px}
+  .skip{margin-left:auto;background:none;color:var(--mute);font-weight:500;font-size:14px;padding:13px 6px}
+  .enter-tip{font-size:12px;color:var(--mute);margin-left:4px}
+  .done{text-align:center;padding:40px 0}
+  .done .tick{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;display:flex;
+              align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px}
+  a{color:var(--terra)}
+  @media(max-width:520px){h1{font-size:25px}h2{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="wrap">
+  <header><span class="brand">SL Consulting</span><span class="count" id="count"></span></header>
+  <main id="main"></main>
+  <nav id="nav"></nav>
+</div>
+
+<script>
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzepSRwNeNpiYzkAn29b2rgA9M3Z6XKdot4uBcJXO0LqSma-bUjRXVGkVbTnQAqQJ0/exec";
+
+const slides = [
+  {kind:"welcome", key:"", title:"A few questions, one at a time.",
+   hint:"So we can map how your team really works — and design the right setup (one assistant, or a few) rather than one per seat. About 15 minutes. Rough answers are perfectly useful."},
+
+  {kind:"text", key:"name", kick:"First, you", title:"Who's filling this in?", placeholder:"Your name", required:true},
+  {kind:"email", key:"email", kick:"So we can reply", title:"Best email to reach you?", placeholder:"you@company.com", required:true},
+
+  {kind:"textarea", key:"What Explore Talent does", kick:"Your operation", title:"In a line or two — what does Explore Talent do day to day?",
+   hint:"And who are your customers?", placeholder:"e.g. we connect talent with…"},
+  {kind:"text", key:"Team size & location", kick:"Your operation", title:"How big is the team, and where are they?",
+   placeholder:"e.g. ~40 people, Cebu + a few in the US"},
+  {kind:"textarea", key:"Call-center work", kick:"Your operation", title:"Which parts run like a call center — inbound, outbound, or both?",
+   hint:"And what are those calls about?", placeholder:"e.g. outbound sales + inbound support for…"},
+
+  {kind:"textarea", key:"Core roles", kick:"The roles — the heart of it", title:"What are the core roles in the operation?",
+   hint:"Tap any that fit, and add your own.", chips:["Sales agents","Retention","QA","Team leads","Scheduling / WFM","Billing","Support","Recruiting"],
+   placeholder:"List the main roles…"},
+  {kind:"textarea", key:"A typical day for top roles", kick:"The roles", title:"For your 2–3 busiest roles, what does a typical day look like?",
+   placeholder:"Role by role, roughly…"},
+  {kind:"textarea", key:"Repetitive / time-eating tasks", kick:"The roles", title:"Which tasks are repetitive, rules-based, or copy-paste heavy?",
+   hint:"The ones people dread, or that eat the most hours.", placeholder:"e.g. re-typing call notes into…"},
+
+  {kind:"textarea", key:"Systems the work lives in", kick:"Where work lives", title:"What systems do you run on?",
+   chips:["CRM","Dialer / telephony","Spreadsheets","Email","Chat","Billing","Ticketing"],
+   placeholder:"List the tools…"},
+  {kind:"textarea", key:"Manual weekly reports", kick:"Where work lives", title:"What reports do managers build by hand each week?",
+   hint:"And roughly how long does that take?", placeholder:"e.g. a weekly performance sheet, ~3 hours…"},
+
+  {kind:"text", key:"Daily volumes", kick:"Volume & friction", title:"Rough daily volumes?",
+   hint:"Calls, tickets, applications, payments — whatever fits.", placeholder:"e.g. ~600 calls/day, ~120 tickets…"},
+  {kind:"textarea", key:"One task per role to hand off", kick:"Volume & friction", title:"If you could hand one task per role to an assistant tomorrow, what would each be?",
+   placeholder:"Role → the task you'd give away first"},
+
+  {kind:"textarea", key:"What 'worth it' looks like in 90 days", kick:"What great looks like", title:"What would make this obviously worth it in the first 90 days?",
+   placeholder:"The outcome that'd make you glad you did this…"},
+  {kind:"textarea", key:"Constraints", kick:"What great looks like", title:"Any hard constraints?",
+   hint:"Client confidentiality, data privacy, compliance, tools you must keep.", placeholder:"Anything we must design around…"},
+  {kind:"choice", key:"Where you are", kick:"Last one", title:"Where are you right now?",
+   options:["Just exploring the idea","Somewhere in between","Ready to pilot something small"]},
+
+  {kind:"end"}
+];
+
+const data = {};
+let i = 0;
+const main = document.getElementById('main'), nav = document.getElementById('nav');
+const bar = document.getElementById('bar'), count = document.getElementById('count');
+const realTotal = slides.filter(s=>s.kind!=="welcome"&&s.kind!=="end").length;
+
+function render(){
+  const s = slides[i];
+  bar.style.width = (i/(slides.length-1))*100 + "%";
+  const qNum = slides.slice(0,i+1).filter(x=>x.kind!=="welcome"&&x.kind!=="end").length;
+  count.textContent = (s.kind==="welcome"||s.kind==="end") ? "" : qNum + " / " + realTotal;
+
+  let html = `<div class="slide on">`;
+  if(s.kick) html += `<p class="kick">${s.kick}</p>`;
+  if(s.kind==="welcome"){
+    html += `<h1>${s.title}</h1><p class="hint">${s.hint}</p>`;
+  } else if(s.kind==="end"){
+    html = `<div class="slide on done"><div class="tick">✓</div><h2>Thank you — that's everything.</h2>
+      <p class="hint">Steven will come back with a picture of what to build, in what order, and what each piece costs.
+      Feel free to close this tab.</p></div>`;
+    main.innerHTML = html; nav.innerHTML = ""; bar.style.width="100%"; return;
+  } else {
+    html += `<h1>${s.title}</h1>`;
+    if(s.hint) html += `<p class="hint">${s.hint}</p>`;
+    if(s.chips){ html += `<div class="chips">` + s.chips.map(c=>`<span class="chip">${c}</span>`).join("") + `</div>`; }
+    const val = data[s.key]||"";
+    if(s.kind==="textarea") html += `<textarea id="f" placeholder="${s.placeholder||''}">${val}</textarea>`;
+    else if(s.kind==="choice") html += `<div class="opts">` + s.options.map(o=>
+        `<label class="opt${val===o?' sel':''}" data-o="${o}">${o}</label>`).join("") + `</div>`;
+    else html += `<input id="f" type="${s.kind==='email'?'email':'text'}" placeholder="${s.placeholder||''}" value="${val.replace(/"/g,'&quot;')}">`;
+  }
+  html += `</div>`;
+  main.innerHTML = html;
+
+  // nav
+  let n = "";
+  if(i>0 && slides[i].kind!=="end") n += `<button class="back" onclick="go(-1)">← Back</button>`;
+  if(slides[i].kind==="welcome") n = `<button class="next" onclick="go(1)">Start →</button>`;
+  else {
+    n += `<button class="next" onclick="advance()">${i===slides.length-2?'Submit':'Next'} →</button>`;
+    if(!slides[i].required) n += `<button class="skip" onclick="advance(true)">Skip</button>`;
+  }
+  nav.innerHTML = n;
+
+  const f = document.getElementById('f'); if(f) f.focus();
+  document.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{ data[slides[i].key]=el.dataset.o;
+    document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); el.classList.add('sel');
+    setTimeout(advance, 180); });
+}
+
+function capture(){ const f=document.getElementById('f'); if(f) data[slides[i].key]=f.value.trim(); }
+
+function advance(skip){
+  const s = slides[i];
+  if(!skip && s.required){
+    const f=document.getElementById('f');
+    if(!f.value.trim()){ f.style.borderColor="var(--terra)"; f.focus(); return; }
+    if(s.kind==="email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value.trim())){ f.style.borderColor="var(--terra)"; return; }
+  }
+  capture();
+  if(i===slides.length-2){ submit(); return; }
+  go(1);
+}
+function go(d){ if(slides[i].kind!=="welcome") capture(); i=Math.max(0,Math.min(slides.length-1,i+d)); render(); }
+
+async function submit(){
+  nav.innerHTML = `<button class="next" disabled>Sending…</button>`;
+  const payload = Object.assign({ offering:"Explore Talent — Discovery Questionnaire" }, data);
+  try{
+    await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(payload),redirect:"follow"});
+  }catch(e){
+    try{ await fetch(ENDPOINT,{method:"POST",mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}); }
+    catch(e2){ nav.innerHTML=""; main.innerHTML=`<div class="slide on done"><h2>Hmm — that didn't send.</h2>
+      <p class="hint">No worries — just reply to Steven's email with your answers, or
+      <a href="mailto:stevenlava@gmail.com?subject=Explore%20Talent%20Discovery">email him directly</a>.</p></div>`; return; }
+  }
+  i = slides.length-1; render();
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==="Enter" && slides[i].kind!=="textarea" && slides[i].kind!=="end"){ e.preventDefault();
+    slides[i].kind==="welcome" ? go(1) : advance(); }
+  if(e.key==="Enter" && e.metaKey && slides[i].kind==="textarea"){ e.preventDefault(); advance(); }
+});
+render();
+</script>
+</body>
+</html>
