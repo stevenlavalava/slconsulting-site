@@ -366,9 +366,34 @@
       <textarea name="ai_pet_peeve" placeholder="e.g., 'It's too wordy.' or 'It tries to send emails I didn't ask it to send.'"></textarea>
     </div>
 
-    <!-- ── E. About you, the person ── -->
+    <!-- ── E. Your company's data ── -->
     <div class="section-head">
       <div class="section-num">Section E</div>
+      <h2>Your company's data</h2>
+      <p class="section-blurb">Most people want to talk to their AI about their business. Tell us where that information lives today, so your AI can reach it.</p>
+    </div>
+
+    <div class="question">
+      <label>Your company</label>
+      <p class="hint">The business you'd want your AI to know about. Skip if it's just you.</p>
+      <input type="text" name="company">
+    </div>
+
+    <div class="question">
+      <label>Where does the data you'd ask about live today?</label>
+      <p class="hint">Name the actual tools. Google Sheets, QuickBooks, an ERP (SAP, Xero, NetSuite…), a POS, email threads, paper — whatever it really is.</p>
+      <textarea name="data_sources" placeholder="e.g., Sales are in a Google Sheet the cashier updates daily; inventory is in the POS; AR is in QuickBooks."></textarea>
+    </div>
+
+    <div class="question">
+      <label>The first question you'd want to ask it</label>
+      <p class="hint">The one you wish you could just say out loud and get an answer to.</p>
+      <textarea name="first_data_question" placeholder="e.g., 'Which customers are more than 30 days late this week?'"></textarea>
+    </div>
+
+    <!-- ── F. About you, the person ── -->
+    <div class="section-head">
+      <div class="section-num">Section F</div>
       <h2>About you, the person</h2>
       <p class="section-blurb">So your AI knows you, not just your job.</p>
     </div>
@@ -401,9 +426,9 @@
       <textarea name="recent_memory"></textarea>
     </div>
 
-    <!-- ── F. First Notebook ── -->
+    <!-- ── G. First Notebook ── -->
     <div class="section-head">
-      <div class="section-num">Section F</div>
+      <div class="section-num">Section G</div>
       <h2>Your first Notebook</h2>
       <p class="section-blurb">Drop everything that's on your mind right now. Tasks, thoughts, ideas, worries. Don't filter. Your AI's first job is to help you sort it.</p>
     </div>
@@ -447,6 +472,11 @@
   // ── Conditional fields ──
   document.querySelector('input[name="persona"][value="other"]').addEventListener('change', function() {
     document.querySelector('input[name="persona_other"]').style.display = this.checked ? 'block' : 'none';
+  });
+
+  // ── Enter in a single-line field must not submit (only the button does) ──
+  document.getElementById('form').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault();
   });
 
   // ── Submit ──
