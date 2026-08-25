@@ -6,128 +6,47 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Akira chan · Before Wednesday</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #f6f2e8; --paper: #ede7d7; --ink: #19150f; --stone: #4a443c;
-    --warm: #8a7f70; --rule: #c8c0ad; --rule-fine: #d8d2c0;
-    --accent: #8a3214; --accent-soft: #c25a2c;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--cream); color: var(--ink);
-    line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
-  body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); }
-  .container { max-width: 640px; margin: 0 auto; padding: 48px 48px 64px; }
-  .eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--warm); margin-bottom: 18px; }
-  h1.title { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
-    font-size: 2.6rem; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 16px; }
-  h1.title em { font-style: italic; font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360; color: var(--accent); }
-  .lede { font-size: 1.05rem; color: var(--stone); margin-bottom: 28px; }
-  hr.divider { border: 0; border-top: 0.5px solid var(--rule); margin: 32px 0; }
-  h2 { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "opsz" 72, "wght" 500; font-size: 1.35rem; letter-spacing: -0.01em; margin: 40px 0 14px; }
-  p { margin-bottom: 14px; }
-  .step { display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding: 18px 0; border-top: 1px solid var(--rule-fine); }
-  .step:last-of-type { border-bottom: 1px solid var(--rule-fine); }
-  .num { font-family: 'Fraunces', Georgia, serif; font-size: 1.6rem; color: var(--accent); line-height: 1; padding-top: 2px; }
-  .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
-  .step p { color: var(--stone); font-size: 0.95rem; margin-bottom: 8px; }
-  .step p:last-child { margin-bottom: 0; }
-  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88em; background: var(--paper); padding: 1px 6px; border-radius: 4px; }
-  .btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
-    padding: 14px 22px; border-radius: 8px; margin: 6px 0 4px; }
-  .btn:hover { background: var(--accent-soft); }
-  .btn small { display: block; font-weight: 400; font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
-  .note { background: var(--paper); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; font-size: 0.95rem; color: var(--stone); margin: 18px 0; }
-  ul { padding-left: 20px; margin-bottom: 14px; }
-  li { margin-bottom: 6px; }
-  .quiet { color: var(--warm); font-size: 0.85rem; }
-  @media (max-width: 560px) { .container { padding: 32px 22px 48px; } h1.title { font-size: 2.1rem; } }
+  :root { --cream:#f6f2e8; --paper:#ede7d7; --ink:#19150f; --stone:#4a443c; --warm:#8a7f70; --rule:#c8c0ad; --accent:#8a3214; --accent-soft:#c25a2c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,sans-serif; background:var(--cream); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  #gate { max-width:420px; margin:0 auto; padding:96px 32px; }
+  .eyebrow { font-size:.7rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--warm); margin-bottom:18px; }
+  h1 { font-family:'Fraunces',Georgia,serif; font-variation-settings:"opsz" 144,"SOFT" 50,"wght" 360; font-size:2rem; line-height:1.1; letter-spacing:-.02em; margin-bottom:12px; }
+  p { color:var(--stone); margin-bottom:22px; }
+  input { width:100%; font:inherit; font-size:1.05rem; padding:12px 14px; border:1px solid var(--rule); border-radius:8px; background:#fff; color:var(--ink); margin-bottom:12px; }
+  input:focus { outline:2px solid var(--accent-soft); border-color:transparent; }
+  button { font:inherit; font-weight:600; background:var(--accent); color:#fff; border:0; padding:12px 20px; border-radius:8px; cursor:pointer; }
+  button:hover { background:var(--accent-soft); }
+  #err { color:var(--accent); font-size:.9rem; min-height:1.4em; margin-top:10px; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="eyebrow">SL Consulting · Jewelmer · Julien</div>
-  <h1 class="title">Akira chan, <em>before Wednesday</em></h1>
-  <p class="lede">Ten minutes on your office PC, any time before our 10 AM session. It lets Steven's side
-  prepare your assistant on the machine remotely, so Wednesday is spent using Akira chan — not installing it.</p>
-
-  <div class="note">
-    <strong>What this does, plainly.</strong> It connects your PC to a private, isolated link that only
-    Steven's laptop can reach — it can see nothing else, and your PC can reach nothing of his. Nothing else is
-    installed at this step. It shows up in <em>Settings → Apps</em> as <strong>PAIA Connect (julien)</strong>,
-    and you can uninstall it there any time, including right after Wednesday.
-  </div>
-
-  <h2>Before you start</h2>
-  <ul>
-    <li>Do this on the <strong>Windows desktop at the office</strong> — the one Akira chan will live on.</li>
-    <li>You need to be able to click <strong>Yes</strong> on a Windows permission prompt (admin). If IT manages
-      the PC and that's blocked, stop here and tell Steven — we'll plan around it.</li>
-    <li>The password for the download is in Steven's WhatsApp message to you.</li>
-  </ul>
-
-  <h2>The steps</h2>
-
-  <div class="step">
-    <div class="num">1</div>
-    <div>
-      <h3>Download</h3>
-      <a class="btn" href="PAIA-Connect-julien.zip">Download PAIA-Connect-julien.zip <small>62 MB</small></a>
-      <p>If the browser asks whether to keep it, keep it.</p>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="num">2</div>
-    <div>
-      <h3>Extract</h3>
-      <p>Open your Downloads folder, right-click the zip → <strong>Extract All…</strong> → Extract.
-      Windows will ask for the password from the WhatsApp message.</p>
-      <p>Open the extracted folder <code>PAIA-Connect-julien</code>. Don't run it from inside the zip.</p>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="num">3</div>
-    <div>
-      <h3>Run it</h3>
-      <p>Right-click <code>PAIA Connect.bat</code> → <strong>Run as administrator</strong> → click <strong>Yes</strong>.</p>
-      <p>If Windows says <em>"Windows protected your PC"</em>: click <strong>More info</strong>, then
-      <strong>Run anyway</strong>. (It's not code-signed yet — that's all that warning means.)</p>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="num">4</div>
-    <div>
-      <h3>Wait for "active"</h3>
-      <p>A black window does its work for about a minute. <strong>Leave it open until a message says
-      PAIA Connect is active</strong> — closing it early stops the install halfway. If it asks to restart,
-      restart, then run step 3 once more; it picks up where it left off.</p>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="num">5</div>
-    <div>
-      <h3>Send Steven the account name</h3>
-      <p>The "active" message shows your Windows account name. Reply on WhatsApp with it (a screenshot is fine).
-      That's the one thing we can't see from our side.</p>
-    </div>
-  </div>
-
-  <h2>Also handy for Wednesday</h2>
-  <ul>
-    <li>A <strong>Claude account</strong> — sign up at <a href="https://claude.ai">claude.ai</a> if you don't have one.
-      Steven will talk you through the plan that fits.</li>
-    <li>Your <strong>phone</strong> nearby (WhatsApp linking is a QR scan).</li>
-    <li>Zoom on the usual link.</li>
-  </ul>
-
-  <hr class="divider">
-  <p class="quiet">Stuck on any step? Message Steven on WhatsApp with a screenshot. Nothing here touches your
-  files; it only opens the door for the setup.</p>
+<div id="gate">
+  <div class="eyebrow">SL Consulting</div>
+  <h1>This page is for one person.</h1>
+  <p>Enter the password from the message you received.</p>
+  <form id="f"><input id="pw" type="password" autocomplete="off" placeholder="Password" autofocus><button type="submit">Open</button></form>
+  <div id="err"></div>
 </div>
+<script>
+const BLOB = {"s": "H3vSVAxC3sVDhfnF8LOVzw==", "i": "0XD4uzrmlwLyrnWa", "c": "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", "n": 250000};
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function unlock(pw) {
+  const enc = new TextEncoder();
+  const km = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64(BLOB.s), iterations:BLOB.n, hash:'SHA-256'}, km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(BLOB.i)}, key, b64(BLOB.c));
+  document.open(); document.write(new TextDecoder().decode(pt)); document.close();
+}
+async function attempt(pw, quiet) {
+  const err = document.getElementById('err');
+  try { await unlock(pw); } catch (e) { if (!quiet) err.textContent = 'That password did not open the page. Check the message and try again.'; }
+}
+document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); attempt(document.getElementById('pw').value.trim(), false); });
+const h = decodeURIComponent(location.hash.slice(1));
+if (h) attempt(h, true);
+</script>
 </body>
 </html>
