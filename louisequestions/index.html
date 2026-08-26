@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Louise — your AI assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1.title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--stone);
+    margin-bottom: 32px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  .section-head {
+    margin: 48px 0 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .section-head .section-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 380;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .section-head .section-blurb {
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .question { margin-bottom: 28px; }
+  label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  label.required::after {
+    content: ' *';
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.large { min-height: 160px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    font-weight: 400;
+    font-size: 0.94rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .radio-group input, .checkbox-group input {
+    accent-color: var(--accent);
+  }
+  .other-input { margin-top: 8px; }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Result page */
+  #result { display: none; text-align: center; padding-top: 40px; }
+  #result h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  #result h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  #result .your-code {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 500;
+    font-size: 3.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding: 28px;
+    border: 1px dashed var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.4);
+  }
+  #result .next-step {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #result .next-step strong { color: var(--ink); }
+  #result .status-msg {
+    font-size: 0.86rem;
+    color: var(--warm);
+    margin-top: 16px;
+  }
+  #result .status-msg.warning {
+    color: var(--accent);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+    h1.title { font-size: 2rem; }
+    .section-head h2 { font-size: 1.35rem; }
+    #result .your-code { font-size: 2.4rem; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<!-- ── QUESTIONNAIRE ── -->
+<div id="form-page" class="container">
+  <div class="eyebrow">SL Consulting · Sage Spa</div>
+  <h1 class="title">Louise, let's build <em>your AI assistant.</em></h1>
+  <p class="lede">Short answers are fine. Your own words are best. Everything you write here becomes the first things your assistant knows about you and about Sage Spa.</p>
+  <hr class="divider">
+
+  <form id="form">
+
+    <div class="section-head">
+      <div class="section-num">Part 1</div>
+      <h2>About you</h2>
+    </div>
+
+    <div class="question">
+      <label class="required">1. Your name</label>
+      <input type="text" name="name" required value="Louise">
+    </div>
+    <div class="question">
+      <label class="required">2. What do you do at Sage Spa?</label>
+      <p class="hint">Owner, manager, the one who answers the phone — whatever is true.</p>
+      <input type="text" name="role" required>
+    </div>
+    <div class="question">
+      <label class="required">3. Your mobile number</label>
+      <p class="hint">The one you actually use. Your assistant will link to your WhatsApp or Viber.</p>
+      <input type="tel" name="mobile" required placeholder="09XX XXX XXXX">
+    </div>
+    <div class="question">
+      <label class="required">4. Your email</label>
+      <p class="hint">The one you actually open. Gmail is best.</p>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Part 2</div>
+      <h2>Naming your assistant</h2>
+      <p class="section-blurb">It gets a name and a personality. Pick what feels right.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">5. What do you want to call your AI?</label>
+      <p class="hint">Anything. A character, a pet's name, a word you like.</p>
+      <input type="text" name="ai_name" required>
+    </div>
+    <div class="question">
+      <label>6. Where did that name come from?</label>
+      <input type="text" name="name_source">
+    </div>
+    <div class="question">
+      <label class="required">7. How should it talk to you?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="persona" value="warm + supportive" required> Warm and supportive</label>
+        <label><input type="radio" name="persona" value="blunt + efficient"> Straight to the point</label>
+        <label><input type="radio" name="persona" value="witty + playful"> Witty and playful</label>
+        <label><input type="radio" name="persona" value="calm + meticulous"> Calm and careful</label>
+      </div>
+    </div>
+    <div class="question">
+      <label class="required">8. What do you call the place where its notes live?</label>
+      <p class="hint">Its notebook, its memory. Any name — "Sage Book", "The Drawer", your call.</p>
+      <input type="text" name="vault_name" required>
+    </div>
+    <div class="question">
+      <label class="required">9. What do you call the folder where you drop files for it?</label>
+      <p class="hint">Photos, Excel files, receipts go here. Any name.</p>
+      <input type="text" name="drop_folder_name" required>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Part 3</div>
+      <h2>Sage Spa today</h2>
+      <p class="section-blurb">How things actually run right now. No wrong answers.</p>
+    </div>
+
+    <div class="question">
+      <label>10. Tell me about Sage Spa</label>
+      <p class="hint">How many branches, how many rooms, how many therapists, what services, opening hours.</p>
+      <textarea name="spa_overview"></textarea>
+    </div>
+    <div class="question">
+      <label>11. How do customers book today?</label>
+      <p class="hint">Check all that happen.</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="booking_channels" value="walk-in"> Walk-in</label>
+        <label><input type="checkbox" name="booking_channels" value="phone call"> Phone call</label>
+        <label><input type="checkbox" name="booking_channels" value="Facebook / Messenger"> Facebook / Messenger</label>
+        <label><input type="checkbox" name="booking_channels" value="Viber / WhatsApp"> Viber / WhatsApp</label>
+        <label><input type="checkbox" name="booking_channels" value="Instagram"> Instagram</label>
+        <label><input type="checkbox" name="booking_channels" value="an app or website"> An app or website</label>
+      </div>
+    </div>
+    <div class="question">
+      <label>12. Where is the schedule kept right now?</label>
+      <p class="hint">Therapists, rooms, reservations — a notebook, a whiteboard, Excel, your phone, someone's memory?</p>
+      <textarea name="schedule_today"></textarea>
+    </div>
+    <div class="question">
+      <label>13. Who handles bookings and the schedule day to day?</label>
+      <p class="hint">You, a receptionist, a manager? First names are fine.</p>
+      <input type="text" name="schedule_owner">
+    </div>
+    <div class="question">
+      <label>14. What goes wrong most often?</label>
+      <p class="hint">Double bookings, no-shows, a therapist absent, a room not ready, customers waiting, commissions hard to compute — whatever it really is.</p>
+      <textarea name="pain_points" placeholder="1.&#10;2.&#10;3."></textarea>
+    </div>
+    <div class="question">
+      <label>15. What eats most of your day?</label>
+      <textarea name="time_sink"></textarea>
+    </div>
+    <div class="question">
+      <label>16. How do you keep track of money?</label>
+      <p class="hint">Sales per day, therapist commissions, supplies, expenses — where is that written down?</p>
+      <textarea name="money_tracking"></textarea>
+    </div>
+    <div class="question">
+      <label>17. What do you use on the computer or phone for the spa today?</label>
+      <p class="hint">Excel, Google Sheets, Facebook page, GCash, a POS, Canva — name them.</p>
+      <textarea name="tools_today"></textarea>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Part 4</div>
+      <h2>The software you wish existed</h2>
+      <p class="section-blurb">Rico said you'd like to build your own spa system one day. Describe it the way you'd describe it to a friend.</p>
+    </div>
+
+    <div class="question">
+      <label>18. If a program could run the spa for you, what would it do?</label>
+      <p class="hint">Just talk. "When someone calls, I want to see right away which therapist and room are free at 3pm…"</p>
+      <textarea name="dream_software" class="large"></textarea>
+    </div>
+    <div class="question">
+      <label>19. Who would use it?</label>
+      <p class="hint">Just you? The receptionist? The therapists on their phones? Rico?</p>
+      <input type="text" name="software_users">
+    </div>
+    <div class="question">
+      <label>20. The first thing it must get right</label>
+      <p class="hint">If it could only do one thing well, what is it?</p>
+      <input type="text" name="software_must_have">
+    </div>
+    <div class="question">
+      <label>21. The first question you'd want to ask your assistant</label>
+      <p class="hint">The one you wish you could just say out loud and get an answer to.</p>
+      <input type="text" name="first_question" placeholder="e.g. 'Who is free this Saturday afternoon?'">
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Part 5</div>
+      <h2>About you, the person</h2>
+      <p class="section-blurb">So your assistant knows you, not just your work.</p>
+    </div>
+
+    <div class="question">
+      <label>22. Something you love doing outside the spa</label>
+      <input type="text" name="hobby">
+    </div>
+    <div class="question">
+      <label>23. Something you're proud of</label>
+      <input type="text" name="proud_of">
+    </div>
+    <div class="question">
+      <label>24. A goal in life</label>
+      <p class="hint">Family, faith, health, business — anything.</p>
+      <input type="text" name="life_goal">
+    </div>
+    <div class="question">
+      <label>25. Two or three people who matter most to you</label>
+      <p class="hint">First names are enough.</p>
+      <input type="text" name="key_people">
+    </div>
+    <div class="question">
+      <label>26. One thing that annoys you about AI or computers</label>
+      <p class="hint">We make it a rule your assistant follows.</p>
+      <input type="text" name="ai_pet_peeve" placeholder="e.g. 'Too many words.' or 'Too many steps.'">
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Part 6</div>
+      <h2>Everything on your mind</h2>
+      <p class="section-blurb">Tasks, worries, ideas, things you keep forgetting. Don't sort it. Your assistant's first job is to sort it with you.</p>
+    </div>
+    <div class="question">
+      <textarea name="first_notebook" class="large" placeholder="Write freely…"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Send to Steven</button>
+  </form>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+<!-- ── RESULT PAGE ── -->
+<div id="result" class="container">
+  <div class="eyebrow">Received</div>
+  <h1>Thank you, <em>Louise.</em></h1>
+  <p class="next-step">Your answers are with Steven. They become the first pages of your assistant's memory.</p>
+  <p class="status-msg" id="status-msg"></p>
+</div>
+
+<script>
+  var RELAY_URL = "https://script.google.com/macros/s/AKfycbzepSRwNeNpiYzkAn29b2rgA9M3Z6XKdot4uBcJXO0LqSma-bUjRXVGkVbTnQAqQJ0/exec";
+
+  document.getElementById('form').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault();
+  });
+
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('.submit-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    var fd = new FormData(this);
+    var data = { offering: 'Louise / Sage Spa PAIA intake' };
+    var multi = ['booking_channels'];
+    for (var pair of fd.entries()) {
+      if (multi.indexOf(pair[0]) !== -1) {
+        data[pair[0]] = data[pair[0]] ? data[pair[0]] + ', ' + pair[1] : pair[1];
+      } else {
+        data[pair[0]] = pair[1];
+      }
+    }
+
+    function showResult(sent) {
+      document.getElementById('form-page').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      window.scrollTo(0, 0);
+      var s = document.getElementById('status-msg');
+      if (sent) { s.textContent = 'Sent.'; s.className = 'status-msg'; }
+      else { s.textContent = 'We could not confirm it was sent. Please tell Steven so he can capture your answers directly.'; s.className = 'status-msg warning'; }
+    }
+
+    fetch(RELAY_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    }).then(function () { showResult(true); }).catch(function () { showResult(false); });
+  });
+</script>
+
+</body>
+</html>
