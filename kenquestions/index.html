@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ken — build your AI assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1.title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--stone);
+    margin-bottom: 32px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  .section-head {
+    margin: 48px 0 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .section-head .section-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 380;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .section-head .section-blurb {
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .question { margin-bottom: 28px; }
+  label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  label.required::after {
+    content: ' *';
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.large { min-height: 160px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    font-weight: 400;
+    font-size: 0.94rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .radio-group input, .checkbox-group input {
+    accent-color: var(--accent);
+  }
+  .other-input { margin-top: 8px; }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Result page */
+  #result { display: none; text-align: center; padding-top: 40px; }
+  #result h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  #result h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  #result .your-code {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 500;
+    font-size: 3.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding: 28px;
+    border: 1px dashed var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.4);
+  }
+  #result .next-step {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #result .next-step strong { color: var(--ink); }
+  #result .status-msg {
+    font-size: 0.86rem;
+    color: var(--warm);
+    margin-top: 16px;
+  }
+  #result .status-msg.warning {
+    color: var(--accent);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+    h1.title { font-size: 2rem; }
+    .section-head h2 { font-size: 1.35rem; }
+    #result .your-code { font-size: 2.4rem; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── QUESTIONNAIRE ── -->
+<div id="form-page" class="container">
+  <div class="eyebrow">SL Consulting · Personal AI Assistant</div>
+  <h1 class="title">Ken, let's build your <em>AI assistant.</em></h1>
+  <p class="lede">Your answers become the first pages of your assistant's memory — who you are, who matters, what it may and may not do. Short answers are fine. Skip anything you'd rather say out loud.</p>
+  <hr class="divider">
+
+  <form id="form">
+
+    <!-- ── A. About you ── -->
+    <div class="section-head">
+      <div class="section-num">Section A</div>
+      <h2>About you</h2>
+      <p class="section-blurb">The basics.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">Your name</label>
+      <p class="hint">As you'd like your assistant to know you. Full name is useful.</p>
+      <input type="text" name="name" required value="Ken Ngo">
+    </div>
+
+    <div class="question">
+      <label class="required">What you do</label>
+      <p class="hint">Your business or role — the thing your assistant should understand first.</p>
+      <input type="text" name="role" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Your mobile number</label>
+      <p class="hint">The one you're actually reachable on — your assistant links to your WhatsApp.</p>
+      <input type="tel" name="mobile" required placeholder="09XX XXX XXXX">
+    </div>
+
+    <div class="question">
+      <label class="required">The email you actually check every day</label>
+      <p class="hint">Not the one you're supposed to check. Gmail connects best today.</p>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="question">
+      <label class="required">Is that email Gmail / Google Workspace, or Outlook / Microsoft 365?</label>
+      <p class="hint">This decides how your assistant connects to it.</p>
+      <div class="radio-group">
+        <label><input type="radio" name="email_platform" value="Gmail / Google Workspace" required> Gmail / Google Workspace</label>
+        <label><input type="radio" name="email_platform" value="Outlook / Microsoft 365"> Outlook / Microsoft 365</label>
+        <label><input type="radio" name="email_platform" value="Apple Mail / iCloud"> Apple Mail / iCloud</label>
+        <label><input type="radio" name="email_platform" value="not sure"> Not sure</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label class="required">The machine your assistant will live on</label>
+      <div class="radio-group">
+        <label><input type="radio" name="device" value="Mac" required> Mac</label>
+        <label><input type="radio" name="device" value="Windows"> Windows</label>
+      </div>
+      <input type="text" name="device_detail" class="other-input" placeholder="Roughly how old is it? (e.g. 'MacBook Air, 2023')">
+    </div>
+
+    <div class="question">
+      <label class="required">Your Claude account</label>
+      <p class="hint">Your assistant runs on Claude. It needs a paid plan, signed in on this machine.</p>
+      <div class="radio-group">
+        <label><input type="radio" name="claude_account" value="paid plan, signed in" required> I have a paid plan and I'm signed in</label>
+        <label><input type="radio" name="claude_account" value="free account only"> I have a free account only</label>
+        <label><input type="radio" name="claude_account" value="none yet"> No account yet</label>
+      </div>
+    </div>
+
+    <!-- ── B. About the AI ── -->
+    <div class="section-head">
+      <div class="section-num">Section B</div>
+      <h2>Naming your assistant</h2>
+      <p class="section-blurb">It gets a name and a personality. Pick what feels right.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you want to call it?</label>
+      <p class="hint">Anything. A character, a creature, a name from a memory. Make it yours.</p>
+      <input type="text" name="ai_name" required>
+    </div>
+
+    <div class="question">
+      <label>Where did this name come from?</label>
+      <p class="hint">A book? A movie? A private joke? It helps us pick an icon that fits.</p>
+      <input type="text" name="name_source">
+    </div>
+
+    <div class="question">
+      <label class="required">What should it call you?</label>
+      <p class="hint">Ken, Sir Ken, boss, a nickname…</p>
+      <input type="text" name="called" required value="Ken">
+    </div>
+
+    <div class="question">
+      <label class="required">Pick a persona</label>
+      <div class="radio-group">
+        <label><input type="radio" name="persona" value="warm + supportive" required> Warm and supportive</label>
+        <label><input type="radio" name="persona" value="blunt + efficient"> Straight to the point</label>
+        <label><input type="radio" name="persona" value="witty + playful"> Witty and playful</label>
+        <label><input type="radio" name="persona" value="calm + meticulous"> Calm and careful</label>
+        <label><input type="radio" name="persona" value="other"> Something else…</label>
+      </div>
+      <input type="text" name="persona_other" class="other-input" placeholder="Describe it…" style="display:none">
+    </div>
+
+    <div class="question">
+      <label class="required">Tone</label>
+      <div class="radio-group">
+        <label><input type="radio" name="voice" value="casual" required> Casual</label>
+        <label><input type="radio" name="voice" value="professional"> Professional</label>
+        <label><input type="radio" name="voice" value="matches my mood"> Matches my mood</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Language</label>
+      <p class="hint">English only, or Bisaya / Tagalog too? Short answers first, or the full story?</p>
+      <input type="text" name="language">
+    </div>
+
+    <!-- ── C. Naming the spaces ── -->
+    <div class="section-head">
+      <div class="section-num">Section C</div>
+      <h2>Naming the spaces</h2>
+      <p class="section-blurb">Your assistant lives in two places — a vault for notes and memory, and a folder where you drop files for it. Pick names that mean something to you.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you call the vault?</label>
+      <p class="hint">Where notes, ideas, and memories live.</p>
+      <input type="text" name="vault_name" required>
+    </div>
+
+    <div class="question">
+      <label class="required">What do you call the drop folder?</label>
+      <p class="hint">Where you drop files for it to read or work on.</p>
+      <input type="text" name="drop_folder_name" required>
+    </div>
+
+    <!-- ── D. Boundaries ── -->
+    <div class="section-head">
+      <div class="section-num">Section D</div>
+      <h2>Boundaries</h2>
+      <p class="section-blurb">Your words go into your assistant's rules, verbatim. This is the section people skip and later wish they hadn't.</p>
+    </div>
+
+    <div class="question">
+      <label class="required">What must it NEVER do without asking you first?</label>
+      <textarea name="never_without_asking" required placeholder="e.g. 'Send anything to anyone.' 'Reply to my wife.' 'Spend money.'"></textarea>
+    </div>
+
+    <div class="question">
+      <label>What is off-limits entirely?</label>
+      <p class="hint">Files, topics, accounts, people.</p>
+      <textarea name="off_limits"></textarea>
+    </div>
+
+    <div class="question">
+      <label class="required">How do you feel about it reading your email and WhatsApp?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="read_comms" value="yes, both" required> Fine — both</label>
+        <label><input type="radio" name="read_comms" value="email only"> Email only</label>
+        <label><input type="radio" name="read_comms" value="WhatsApp only"> WhatsApp only</label>
+        <label><input type="radio" name="read_comms" value="neither, for now"> Neither, for now</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>One thing you find annoying about AI today</label>
+      <p class="hint">Becomes a rule it lives by.</p>
+      <input type="text" name="ai_pet_peeve" placeholder="e.g. 'Too many words.' or 'Too many steps.'">
+    </div>
+
+    <!-- ── E. Your work ── -->
+    <div class="section-head">
+      <div class="section-num">Section E</div>
+      <h2>Your work</h2>
+      <p class="section-blurb">What do you actually need help with?</p>
+    </div>
+
+    <div class="question">
+      <label class="required">Top 3 things you want help with</label>
+      <p class="hint">Specific beats general. "Chasing suppliers for quotes" beats "communication."</p>
+      <textarea name="top_asks" required placeholder="1.&#10;2.&#10;3."></textarea>
+    </div>
+
+    <div class="question">
+      <label>Where does your work communication happen?</label>
+      <p class="hint">Rank them if you can.</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="channels" value="email"> Email</label>
+        <label><input type="checkbox" name="channels" value="WhatsApp"> WhatsApp</label>
+        <label><input type="checkbox" name="channels" value="Viber"> Viber</label>
+        <label><input type="checkbox" name="channels" value="Messenger"> Messenger</label>
+        <label><input type="checkbox" name="channels" value="SMS / calls"> SMS / calls</label>
+        <label><input type="checkbox" name="channels" value="Telegram"> Telegram</label>
+      </div>
+      <input type="text" name="channels_rank" class="other-input" placeholder="Ranked, e.g. 'WhatsApp, then email'">
+    </div>
+
+    <div class="question">
+      <label>How do you track your schedule and to-dos today?</label>
+      <input type="text" name="schedule_today" placeholder="Google Calendar, a notebook, my head…">
+    </div>
+
+    <div class="question">
+      <label>Your company</label>
+      <p class="hint">The business your assistant should know about. Skip if it's just you.</p>
+      <input type="text" name="company">
+    </div>
+
+    <div class="question">
+      <label>Where does your business data live today?</label>
+      <p class="hint">Name the actual tools — Google Sheets, QuickBooks, an ERP, a POS, email threads, paper.</p>
+      <textarea name="data_sources" placeholder="e.g. Sales are in a Google Sheet the cashier updates daily; AR is in QuickBooks."></textarea>
+    </div>
+
+    <div class="question">
+      <label>The first question you'd want to ask it about your business</label>
+      <textarea name="first_data_question" placeholder="e.g. 'Which customers are more than 30 days late this week?'"></textarea>
+    </div>
+
+    <div class="question">
+      <label>What kinds of files would you drop into its folder?</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="files_typical" value="reports"> Reports</label>
+        <label><input type="checkbox" name="files_typical" value="SOPs"> SOPs / process docs</label>
+        <label><input type="checkbox" name="files_typical" value="spreadsheets"> Spreadsheets</label>
+        <label><input type="checkbox" name="files_typical" value="emails"> Emails / threads</label>
+        <label><input type="checkbox" name="files_typical" value="receipts"> Receipts / invoices</label>
+        <label><input type="checkbox" name="files_typical" value="photos"> Photos</label>
+        <label><input type="checkbox" name="files_typical" value="contracts"> Contracts</label>
+      </div>
+    </div>
+
+    <!-- ── F. Your people ── -->
+    <div class="section-head">
+      <div class="section-num">Section F</div>
+      <h2>Your people</h2>
+      <p class="section-blurb">Your assistant should know who's who from day one.</p>
+    </div>
+
+    <div class="question">
+      <label>The people you deal with most at work</label>
+      <p class="hint">Name, role, what flows between you. Five to ten is plenty.</p>
+      <textarea name="work_people" placeholder="e.g. Maria — accountant — sends me monthly reports, I approve payments"></textarea>
+    </div>
+
+    <div class="question">
+      <label>Whose messages must never be missed?</label>
+      <input type="text" name="never_miss">
+    </div>
+
+    <div class="question">
+      <label>Two or three people who matter most to you</label>
+      <p class="hint">First names are enough.</p>
+      <input type="text" name="key_people">
+    </div>
+
+    <!-- ── G. About you, the person ── -->
+    <div class="section-head">
+      <div class="section-num">Section G</div>
+      <h2>About you, the person</h2>
+      <p class="section-blurb">So it knows you, not just your job.</p>
+    </div>
+
+    <div class="question">
+      <label>A hobby or thing you love doing outside work</label>
+      <input type="text" name="hobby">
+    </div>
+
+    <div class="question">
+      <label>Something you're proud of</label>
+      <input type="text" name="proud_of">
+    </div>
+
+    <div class="question">
+      <label>A goal in life</label>
+      <p class="hint">Career, family, faith, fitness — anything.</p>
+      <input type="text" name="life_goal">
+    </div>
+
+    <div class="question">
+      <label>Your recurring commitments</label>
+      <p class="hint">Meetings, church, sports, family rhythms — what, with whom, how often.</p>
+      <textarea name="rhythm"></textarea>
+    </div>
+
+    <div class="question">
+      <label>What do you look up again and again?</label>
+      <p class="hint">Things that live only in your head and should be written down somewhere.</p>
+      <textarea name="lookups"></textarea>
+    </div>
+
+    <!-- ── H. First Notebook ── -->
+    <div class="section-head">
+      <div class="section-num">Section H</div>
+      <h2>Everything on your mind</h2>
+      <p class="section-blurb">Tasks, thoughts, ideas, worries. Don't filter. Your assistant's first job is to help you sort it.</p>
+    </div>
+
+    <div class="question">
+      <textarea name="first_notebook" class="large" placeholder="Write freely…"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Send to Steven</button>
+  </form>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+<!-- ── RESULT PAGE ── -->
+<div id="result" class="container">
+  <div class="eyebrow">Received</div>
+  <h1>Thank you, <em id="thanks-name">Ken.</em></h1>
+  <p class="next-step">Your answers are with Steven. They become the first pages of your assistant's memory.</p>
+  <p class="status-msg" id="status-msg"></p>
+</div>
+
+<script>
+  var RELAY_URL = "https://script.google.com/macros/s/AKfycbzepSRwNeNpiYzkAn29b2rgA9M3Z6XKdot4uBcJXO0LqSma-bUjRXVGkVbTnQAqQJ0/exec";
+
+  document.querySelectorAll('input[name="persona"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      document.querySelector('input[name="persona_other"]').style.display = this.value === 'other' ? 'block' : 'none';
+    });
+  });
+
+  document.getElementById('form').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault();
+  });
+
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('.submit-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    var fd = new FormData(this);
+    var data = { offering: 'Ken Ngo PAIA intake (kenquestions)' };
+    var multi = ['channels', 'files_typical'];
+    for (var pair of fd.entries()) {
+      if (multi.indexOf(pair[0]) !== -1) {
+        data[pair[0]] = data[pair[0]] ? data[pair[0]] + ', ' + pair[1] : pair[1];
+      } else {
+        data[pair[0]] = pair[1];
+      }
+    }
+    if (data.persona === 'other' && data.persona_other) data.persona = data.persona_other;
+    delete data.persona_other;
+
+    function showResult(sent) {
+      var first = (data.name || 'Ken').trim().split(/\s+/)[0];
+      document.getElementById('thanks-name').textContent = first + '.';
+      document.getElementById('form-page').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      window.scrollTo(0, 0);
+      var s = document.getElementById('status-msg');
+      if (sent) { s.textContent = 'Sent.'; s.className = 'status-msg'; }
+      else { s.textContent = 'We could not confirm it was sent. Please tell Steven so he can capture your answers directly.'; s.className = 'status-msg warning'; }
+    }
+
+    fetch(RELAY_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    }).then(function () { showResult(true); }).catch(function () { showResult(false); });
+  });
+</script>
+
+</body>
+</html>
