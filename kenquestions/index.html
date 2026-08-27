@@ -279,23 +279,21 @@
       <div class="radio-group">
         <label><input type="radio" name="email_platform" value="Gmail / Google Workspace" required> Gmail / Google Workspace</label>
         <label><input type="radio" name="email_platform" value="Outlook / Microsoft 365"> Outlook / Microsoft 365</label>
-        <label><input type="radio" name="email_platform" value="Apple Mail / iCloud"> Apple Mail / iCloud</label>
+        <label><input type="radio" name="email_platform" value="iCloud mail"> iCloud mail (@icloud.com / @me.com)</label>
         <label><input type="radio" name="email_platform" value="not sure"> Not sure</label>
       </div>
     </div>
 
     <div class="question">
-      <label class="required">The machine your assistant will live on</label>
-      <div class="radio-group">
-        <label><input type="radio" name="device" value="Mac" required> Mac</label>
-        <label><input type="radio" name="device" value="Windows"> Windows</label>
-      </div>
-      <input type="text" name="device_detail" class="other-input" placeholder="Roughly how old is it? (e.g. 'MacBook Air, 2023')">
+      <label class="required">Your Mac</label>
+      <p class="hint">Your assistant lives on the Mac laptop you have with you today. Which one is it, roughly?</p>
+      <input type="hidden" name="device" value="Mac">
+      <input type="text" name="device_detail" required placeholder="e.g. 'MacBook Air, 2023' — Apple menu → About This Mac">
     </div>
 
     <div class="question">
       <label class="required">Your Claude account</label>
-      <p class="hint">Your assistant runs on Claude. It needs a paid plan, signed in on this machine.</p>
+      <p class="hint">Your assistant runs on Claude. It needs a paid plan (Pro), signed in on this Mac's browser — claude.ai.</p>
       <div class="radio-group">
         <label><input type="radio" name="claude_account" value="paid plan, signed in" required> I have a paid plan and I'm signed in</label>
         <label><input type="radio" name="claude_account" value="free account only"> I have a free account only</label>
