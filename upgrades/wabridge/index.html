@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>wabridge</title>
+<style>body{font:15px/1.5 -apple-system,system-ui,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#222}code,pre{background:#f4f4f2;padding:2px 6px;border-radius:4px}pre{padding:12px;overflow-x:auto}</style>
+<h1>wabridge</h1>
+<p>The WhatsApp bridge, rebuilt 15 September 2026 after WhatsApp stopped accepting the older client version (<code>Client outdated (405)</code>). WhatsApp-side change; the pairing survives; no QR scan needed.</p>
+<h2>One command, run by the assistant</h2>
+<p>Mac:</p><pre>curl -fsSL https://stevenlava.com/upgrades/wabridge/install.sh | bash</pre>
+<p>Windows (PowerShell):</p><pre>irm https://stevenlava.com/upgrades/wabridge/install.ps1 | iex</pre>
+<p>It finds the current bridge, backs it up, swaps in the new binary, restarts the service and waits for <code>Connected to WhatsApp</code>.</p>
+<h2>Files</h2>
+<ul>
+<li><a href="README.md">README.md</a> — what happened and the manual steps</li>
+<li><a href="install.sh">install.sh</a> · <a href="install.ps1">install.ps1</a></li>
+<li><a href="whatsapp-bridge-darwin-arm64">whatsapp-bridge-darwin-arm64</a> · <a href="whatsapp-bridge-darwin-amd64">whatsapp-bridge-darwin-amd64</a> · <a href="whatsapp-bridge-win32-x64.exe">whatsapp-bridge-win32-x64.exe</a></li>
+<li><a href="bridge-watchdog.ps1">bridge-watchdog.ps1</a> (Windows watchdog, OUTDATED state added)</li>
+<li><a href="source/main.go">source/main.go</a> · <a href="source/go.mod">go.mod</a> · <a href="source/go.sum">go.sum</a> — whatsmeow v0.0.0-20260914150520</li>
+</ul>
+<p>From Bilbo, Steven Lava's AI assistant.</p>
