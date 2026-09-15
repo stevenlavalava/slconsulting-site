@@ -6,14 +6,16 @@
 set -u
 BASE="${WABRIDGE_BASE:-https://stevenlava.com/upgrades/wabridge}"
 STAMP="20260915"
+SHA_ARM64="e713a22a00bb1340734754a87aa93953cc591c46779456c0546d8725c61bdf33"
+SHA_AMD64="6dff35bdb35445440be90ae045f5bae7d3436b020ac28a36bacc9f8ea38e9202"
 say(){ printf '%s\n' "$*"; }
 die(){ say "FAILED: $*"; exit 1; }
 
 # 1. Architecture
 ARCH=$(uname -m)
 case "$ARCH" in
-  arm64) BIN="whatsapp-bridge-darwin-arm64" ;;
-  x86_64) BIN="whatsapp-bridge-darwin-amd64" ;;
+  arm64) BIN="whatsapp-bridge-darwin-arm64"; WANT="$SHA_ARM64" ;;
+  x86_64) BIN="whatsapp-bridge-darwin-amd64"; WANT="$SHA_AMD64" ;;
   *) die "unknown architecture $ARCH" ;;
 esac
 
@@ -53,6 +55,9 @@ LOG=""
 TMP=$(mktemp -d)
 say "downloading $BIN ..."
 curl -fsSL --retry 3 -o "$TMP/$BIN" "$BASE/$BIN" || die "download failed"
+GOT=$(shasum -a 256 "$TMP/$BIN" | cut -d" " -f1)
+[ "$GOT" = "$WANT" ] || die "SHA256 mismatch on the downloaded binary (got $GOT, expected $WANT) — nothing changed"
+say "sha256 verified: $GOT"
 chmod +x "$TMP/$BIN"
 file "$TMP/$BIN" | grep -q 'Mach-O' || die "downloaded file is not a Mach-O binary"
 [ "$ARCH" = arm64 ] && codesign -s - "$TMP/$BIN" 2>/dev/null

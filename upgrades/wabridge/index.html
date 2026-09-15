@@ -5,9 +5,11 @@
 <h2>One command, run by the assistant</h2>
 <p>Mac:</p><pre>curl -fsSL https://stevenlava.com/upgrades/wabridge/install.sh | bash</pre>
 <p>Windows (PowerShell):</p><pre>irm https://stevenlava.com/upgrades/wabridge/install.ps1 | iex</pre>
+<p>Built 2026-09-15 with Go 1.26.3 on macOS; Windows exe cross-compiled with mingw-w64 (<code>CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build</code>), so the SQLite driver is the real cgo one.</p>
 <p>It finds the current bridge, backs it up, swaps in the new binary, restarts the service and waits for <code>Connected to WhatsApp</code>.</p>
 <h2>Files</h2>
 <ul>
+<li><a href="SHA256SUMS.txt">SHA256SUMS.txt</a> — checksums of every file here; both installers verify the binary they download against the hash embedded in the script</li>
 <li><a href="README.md">README.md</a> — what happened and the manual steps</li>
 <li><a href="install.sh">install.sh</a> · <a href="install.ps1">install.ps1</a></li>
 <li><a href="whatsapp-bridge-darwin-arm64">whatsapp-bridge-darwin-arm64</a> · <a href="whatsapp-bridge-darwin-amd64">whatsapp-bridge-darwin-amd64</a> · <a href="whatsapp-bridge-win32-x64.exe">whatsapp-bridge-win32-x64.exe</a></li>

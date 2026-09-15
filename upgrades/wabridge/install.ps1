@@ -5,6 +5,7 @@
 $ErrorActionPreference = "Stop"
 $Base = if ($env:WABRIDGE_BASE) { $env:WABRIDGE_BASE } else { "https://stevenlava.com/upgrades/wabridge" }
 $Stamp = "20260915"
+$ExeSha256 = "1e074d6c6ccf64674e4f09f71b311cba44cd08cfbd81e1718fbfba7eca897224"
 function Say($m) { Write-Host $m }
 function Die($m) { Write-Host "FAILED: $m"; exit 1 }
 
@@ -39,6 +40,9 @@ $Tmp = Join-Path $env:TEMP "whatsapp-bridge-win32-x64.exe"
 Say "downloading ..."
 Invoke-WebRequest -Uri "$Base/whatsapp-bridge-win32-x64.exe" -OutFile $Tmp -UseBasicParsing
 if ((Get-Item $Tmp).Length -lt 10MB) { Die "download looks wrong (too small)" }
+$got = (Get-FileHash $Tmp -Algorithm SHA256).Hash.ToLower()
+if ($got -ne $ExeSha256) { Die "SHA256 mismatch on the downloaded exe (got $got, expected $ExeSha256) - nothing changed" }
+Say "sha256 verified: $got"
 Unblock-File $Tmp -ErrorAction SilentlyContinue
 
 # 3. Stop everything, swap, start one
