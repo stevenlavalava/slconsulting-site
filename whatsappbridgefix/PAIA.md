@@ -108,7 +108,7 @@ stevenlava.com/upgrades/wabridge/ with the Go source next to it.
 ## 5. If the installer cannot find the bridge
 
 Follow the manual steps in
-https://stevenlava.com/upgrades/wabridge/README.md: locate the binary,
+https://stevenlava.com/upgrades/wabridge/README.md . Locate the binary,
 stop every bridge process, rename the old binary to `.bak-20260915`, put
 the new one in its place (same filename, `chmod +x` on Mac), start the
 service, verify. Mac caution: keep the binary under `~/Library` or
