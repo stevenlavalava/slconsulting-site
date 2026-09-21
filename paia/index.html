@@ -74,7 +74,7 @@
       <input id="name" type="text" autocomplete="name">
       <label for="wa">WhatsApp number</label>
       <input id="wa" type="tel" autocomplete="tel" placeholder="0917 123 4567">
-      <label for="email">Email (optional)</label>
+      <label for="email">Email</label>
       <input id="email" type="email" autocomplete="email">
       <label for="note">Where should we meet? Anything else? (optional)</label>
       <textarea id="note"></textarea>
@@ -165,7 +165,8 @@
                    note: $("note").value, website: $("website").value, proof,
                    method: document.querySelector('input[name=method]:checked').value };
     if (!chosen) return (err.textContent = "Please pick a slot in step 1.");
-    if (!body.name.trim() || !body.whatsapp.trim()) return (err.textContent = "Please add your name and WhatsApp number.");
+    if (!body.name.trim() || !body.whatsapp.trim() || !body.email.trim()) return (err.textContent = "Please add your name, WhatsApp number and email.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())) return (err.textContent = "That email doesn't look right.");
     if (!proof) return (err.textContent = "Please attach the screenshot of your payment.");
     $("go").disabled = true; $("go").textContent = "Booking…";
     try {
