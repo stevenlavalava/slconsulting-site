@@ -29,6 +29,9 @@
           background: #fff; color: var(--ink); cursor: pointer; min-height: 44px; }
   .slot:hover { border-color: var(--accent-soft); }
   .slot[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .slot.taken, .slot.taken:hover { text-decoration: line-through; color: var(--warm); background: var(--paper);
+          border-color: var(--rule); cursor: not-allowed; opacity: .75; }
+  .slot.taken::after { content: " · Booked"; text-decoration: none; display: inline-block; margin-left: 4px; }
   .empty { color: var(--stone); background: var(--paper); border-radius: 8px; padding: 16px; }
   label { display: block; font-size: .85rem; font-weight: 500; color: var(--stone); margin: 14px 0 6px; }
   input[type=text], input[type=tel], input[type=email], textarea {
@@ -117,8 +120,14 @@
         }
         const b = document.createElement("button");
         b.type = "button"; b.className = "slot"; b.textContent = slotText(s); b.setAttribute("aria-pressed", "false");
+        if (s.status === "booked") { b.className = "slot taken"; b.disabled = true; b.setAttribute("aria-disabled", "true"); row.appendChild(b); continue; }
         b.onclick = () => { chosen = s; box.querySelectorAll(".slot").forEach((x) => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); };
         row.appendChild(b);
+      }
+      if (!slots.some((s) => s.status !== "booked")) {
+        const p = document.createElement("p"); p.className = "empty"; p.style.marginTop = "16px";
+        p.textContent = "All slots are taken right now. Message Steven on WhatsApp and he will open more.";
+        box.appendChild(p); $("go").disabled = true;
       }
     } catch { box.innerHTML = '<p class="empty">Could not load the slots. Please refresh in a moment.</p>'; }
   }
