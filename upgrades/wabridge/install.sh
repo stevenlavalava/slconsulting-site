@@ -5,9 +5,9 @@
 # Safe to re-run. Keeps the pairing (store/ untouched). Backs up the old binary.
 set -u
 BASE="${WABRIDGE_BASE:-https://stevenlava.com/upgrades/wabridge}"
-STAMP="20260915"
-SHA_ARM64="e713a22a00bb1340734754a87aa93953cc591c46779456c0546d8725c61bdf33"
-SHA_AMD64="6dff35bdb35445440be90ae045f5bae7d3436b020ac28a36bacc9f8ea38e9202"
+STAMP="20260922"
+SHA_ARM64="40851ac966e139d09bee7ee394a8ac11132fdd60b53e1af8d05f67cf67e5a770"
+SHA_AMD64="e9814a01ea5121a27776b54aeb084ebdd44a50c981b3c013d870257cb6368985"
 say(){ printf '%s\n' "$*"; }
 die(){ say "FAILED: $*"; exit 1; }
 
@@ -72,6 +72,8 @@ if [ -f "$TARGET.bak-$STAMP" ]; then say "backup already exists, keeping it"; el
 cp "$TMP/$BIN" "$TARGET.new" && mv "$TARGET.new" "$TARGET" || die "swap failed"
 chmod +x "$TARGET"
 say "swapped (backup at $TARGET.bak-$STAMP)"
+LOGSTART=0
+[ -n "$LOG" ] && [ -f "$LOG" ] && LOGSTART=$(wc -c < "$LOG" | tr -d " ")
 if [ -n "$PLIST" ]; then
   launchctl bootstrap "gui/$(id -u)" "$PLIST" || die "launchctl bootstrap failed"
   say "service started"
@@ -83,12 +85,13 @@ fi
 say "waiting for 'Connected to WhatsApp' ..."
 for i in $(seq 1 45); do
   sleep 2
-  if [ -n "$LOG" ] && [ -f "$LOG" ] && tail -c 20000 "$LOG" | grep -q 'Connected to WhatsApp'; then
-    if tail -c 20000 "$LOG" | tail -50 | grep -q 'Client outdated'; then continue; fi
+  NEW=""; [ -n "$LOG" ] && [ -f "$LOG" ] && NEW=$(tail -c +$((LOGSTART+1)) "$LOG")
+  if printf '%s' "$NEW" | grep -q 'Connected to WhatsApp'; then
+    if printf '%s' "$NEW" | tail -50 | grep -q 'Client outdated'; then continue; fi
     say "OK: connected (pid $(pgrep -f whatsapp-bridge | head -1)). Pairing kept. Messages missed while down will backfill on their own."
     say "wabridge $STAMP installed"; exit 0
   fi
-  if [ -n "$LOG" ] && [ -f "$LOG" ] && tail -c 20000 "$LOG" | grep -q 'Device logged out'; then
+  if printf '%s' "$NEW" | grep -q 'Device logged out'; then
     say "swapped, but WhatsApp has unlinked this device — the one case that needs a QR scan. Run the pairing step from your WhatsApp note."; exit 2
   fi
 done

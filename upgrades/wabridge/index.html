@@ -6,7 +6,8 @@
 <h2>One command, run by the assistant</h2>
 <p>Mac:</p><pre>curl -fsSL https://stevenlava.com/upgrades/wabridge/install.sh | bash</pre>
 <p>Windows (PowerShell):</p><pre>irm https://stevenlava.com/upgrades/wabridge/install.ps1 | iex</pre>
-<p>Built 2026-09-15 with Go 1.26.3 on macOS; Windows exe cross-compiled with mingw-w64 (<code>CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build</code>), so the SQLite driver is the real cgo one.</p>
+<p><strong>Updated 22 September 2026:</strong> fixes media downloads (photos, PDFs, zips) returning <code>403</code> since the 15 September build — the bridge was stripping the <code>oh=/oe=</code> signature from the media URL. If your bridge sends and receives text but cannot download files, run the one command again.</p>
+<p>Built 2026-09-15 (media fix rebuilt 2026-09-22) with Go 1.26.3 on macOS; Windows exe cross-compiled with mingw-w64 (<code>CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build</code>), so the SQLite driver is the real cgo one.</p>
 <p>It finds the current bridge, backs it up, swaps in the new binary, restarts the service and waits for <code>Connected to WhatsApp</code>.</p>
 <h2>Files</h2>
 <ul>

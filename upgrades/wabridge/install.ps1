@@ -4,8 +4,8 @@
 # Safe to re-run. Keeps the pairing (store\ untouched). Backs up the old exe.
 $ErrorActionPreference = "Stop"
 $Base = if ($env:WABRIDGE_BASE) { $env:WABRIDGE_BASE } else { "https://stevenlava.com/upgrades/wabridge" }
-$Stamp = "20260915"
-$ExeSha256 = "1e074d6c6ccf64674e4f09f71b311cba44cd08cfbd81e1718fbfba7eca897224"
+$Stamp = "20260922"
+$ExeSha256 = "037aadbdeec56908ed2cb2f692618a448e99308d65d9d12e4a079022f73405c6"
 function Say($m) { Write-Host $m }
 function Die($m) { Write-Host "FAILED: $m"; exit 1 }
 
