@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Jewelmer — before September 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1.title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--stone);
+    margin-bottom: 32px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  .section-head {
+    margin: 48px 0 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .section-head .section-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 380;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .section-head .section-blurb {
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .question { margin-bottom: 28px; }
+  label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  label.required::after {
+    content: ' *';
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.large { min-height: 160px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    font-weight: 400;
+    font-size: 0.94rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .radio-group input, .checkbox-group input {
+    accent-color: var(--accent);
+  }
+  .other-input { margin-top: 8px; }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Result page */
+  #result { display: none; text-align: center; padding-top: 40px; }
+  #result h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  #result h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  #result .your-code {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 500;
+    font-size: 3.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding: 28px;
+    border: 1px dashed var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.4);
+  }
+  #result .next-step {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #result .next-step strong { color: var(--ink); }
+  #result .status-msg {
+    font-size: 0.86rem;
+    color: var(--warm);
+    margin-top: 16px;
+  }
+  #result .status-msg.warning {
+    color: var(--accent);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+    h1.title { font-size: 2rem; }
+    .section-head h2 { font-size: 1.35rem; }
+    #result .your-code { font-size: 2.4rem; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="form-page" class="container">
+  <div class="eyebrow">Jewelmer · Before September 30</div>
+  <h1 class="title">In your own words, <em>where it hurts.</em></h1>
+  <p class="lede">Before our session on September 30, Steven wants to hear from each of you directly, in your own words. There are no right answers and nothing here is graded. Your answers are read by Steven only and never quoted by name. Write as much or as little as you like: a few lines is fine, a page is fine. About 15 minutes.</p>
+  <hr class="divider">
+
+  <form id="form">
+
+    <div class="question">
+      <label class="required" for="q1">1. Your name and role</label>
+      <p class="hint">Only Steven sees this.</p>
+      <input type="text" id="q1" name="q1" required>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Section A</div>
+      <h2>Your work</h2>
+    </div>
+
+    <div class="question">
+      <label for="q2">2. What are the biggest pain points in your work right now? List as many as you like, most painful first.</label>
+      <p class="hint">Don't overthink it. What comes to mind first is usually the real one.</p>
+      <textarea id="q2" name="q2" class="large"></textarea>
+    </div>
+
+    <div class="question">
+      <label for="q3">3. Pick the worst one. Tell us about the last time it happened: what went wrong, and what did it cost? Hours, money, a customer, your weekend.</label>
+      <textarea id="q3" name="q3" class="large"></textarea>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Section B</div>
+      <h2>Between people and teams</h2>
+    </div>
+
+    <div class="question">
+      <label for="q4">4. Where do things fall through the cracks between you and another person or department?</label>
+      <p class="hint">The "I thought you were doing that" moments.</p>
+      <textarea id="q4" name="q4"></textarea>
+    </div>
+
+    <div class="question">
+      <label for="q5">5. What does the company keep putting off deciding, or keep deciding again and again?</label>
+      <textarea id="q5" name="q5"></textarea>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Section C</div>
+      <h2>You <span style="font-size:0.6em;color:var(--warm)">(optional)</span></h2>
+    </div>
+
+    <div class="question">
+      <label for="q6">6. What pressures are you carrying that make the work harder? Workload, pay, hours, growth, or anything outside work you're willing to share.</label>
+      <p class="hint">Skip this if you'd rather. It stays with Steven.</p>
+      <textarea id="q6" name="q6"></textarea>
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Section D</div>
+      <h2>The picture</h2>
+    </div>
+
+    <div class="question">
+      <label for="q7">7. It's a year from now and the company is running the way it should. What is different for you on a normal Monday morning?</label>
+      <textarea id="q7" name="q7"></textarea>
+    </div>
+
+    <div class="question">
+      <label for="q8">8. Picture the future: your department, and Jewelmer as a whole, running perfectly. Describe that future: how the work flows, how people work together, and what customers see.</label>
+      <p class="hint">Dream a little. This is the picture we'll build toward.</p>
+      <textarea id="q8" name="q8" class="large"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Send to Steven</button>
+  </form>
+
+  <div class="footer">SL Consulting · stevenlava.com</div>
+</div>
+
+<div id="result" class="container">
+  <div class="eyebrow">Received</div>
+  <h1>Thank you, <em id="thanks-name">friend.</em></h1>
+  <p class="next-step">Your answers are with Steven. See you on September 30.</p>
+  <p class="status-msg" id="status-msg"></p>
+</div>
+
+<script>
+  var RELAY_URL = "https://script.google.com/macros/s/AKfycbzepSRwNeNpiYzkAn29b2rgA9M3Z6XKdot4uBcJXO0LqSma-bUjRXVGkVbTnQAqQJ0/exec";
+  var LABELS = {
+    q1: "1 Name and role",
+    q2: "2 Biggest pain points",
+    q3: "3 The worst one, last time it happened",
+    q4: "4 Falls through the cracks",
+    q5: "5 Keeps putting off / re-deciding",
+    q6: "6 Pressures (optional)",
+    q7: "7 A year from now, Monday morning",
+    q8: "8 The future, running perfectly"
+  };
+
+  document.getElementById('form').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault();
+  });
+
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('.submit-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    var fd = new FormData(this);
+    var data = { offering: 'Jewelmer pain-point questionnaire', name: (fd.get('q1') || '').trim() };
+    Object.keys(LABELS).forEach(function (k) {
+      data[LABELS[k]] = (fd.get(k) || '').trim() || '(blank)';
+    });
+
+    function showResult(sent) {
+      var first = (data.name || 'friend').split(/[\s,]+/)[0];
+      document.getElementById('thanks-name').textContent = first + '.';
+      document.getElementById('form-page').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      window.scrollTo(0, 0);
+      var s = document.getElementById('status-msg');
+      if (sent) { s.textContent = 'Sent.'; s.className = 'status-msg'; }
+      else { s.textContent = 'We could not confirm it was sent. Please tell Julien so Steven can get your answers another way.'; s.className = 'status-msg warning'; }
+    }
+
+    fetch(RELAY_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    }).then(function () { showResult(true); }).catch(function () { showResult(false); });
+  });
+</script>
+
+</body>
+</html>
