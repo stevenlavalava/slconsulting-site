@@ -35,6 +35,10 @@ h1{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:34px;line-height
 .how span{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
 .how b{display:block;color:var(--ink);font-size:15px}
 h2{font-family:Fraunces,Georgia,serif;font-size:21px;margin:26px 0 8px}
+.cats{position:sticky;top:0;z-index:2;display:flex;gap:8px;overflow-x:auto;padding:10px 0;margin:8px 0 0;background:var(--bg);scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats a{flex:none;padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:14px;font-weight:600}
+h2[id]{scroll-margin-top:60px}
 .item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
 .item .t{flex:1;min-width:0}
 .item .n{font-weight:600}
@@ -211,7 +215,9 @@ const withSc = n => Math.round(n * (1 + (S.serviceChargePct || 0) / 100) * 100) 
 function renderMenu() {
   if (!MENU.length) { $("menu").innerHTML = '<p class="muted">The menu is being set up. Check back in a minute.</p>'; return; }
   const cats = [...new Set(MENU.map(m => m.cat || "Menu"))];
-  $("menu").innerHTML = cats.map(c => `<h2>${esc(c)}</h2>` + MENU.filter(m => (m.cat || "Menu") === c).map(m => {
+  const cid = c => "c-" + c.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  $("menu").innerHTML = (cats.length > 2 ? `<nav class="cats">${cats.map(c => `<a href="#${cid(c)}">${esc(c)}</a>`).join("")}</nav>` : "")
+    + cats.map(c => `<h2 id="${cid(c)}">${esc(c)}</h2>` + MENU.filter(m => (m.cat || "Menu") === c).map(m => {
     const q = cart[m.id] || 0, out = m.available === false;
     return `<div class="item ${out ? "out" : ""}"><div class="t"><div class="n">${esc(m.name)}</div>${m.desc ? `<div class="d">${esc(m.desc)}</div>` : ""}<div class="p">${php(m.price)}</div></div>
       ${out ? '<span class="soldout">Sold out</span>' : `<div class="step">${q ? `<button data-id="${esc(m.id)}" data-d="-1" aria-label="Remove one">−</button><span class="q">${q}</span>` : ""}<button class="add" data-id="${esc(m.id)}" data-d="1" aria-label="Add one">+</button></div>`}</div>`;
