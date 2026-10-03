@@ -117,13 +117,12 @@ footer{color:var(--muted);font-size:12px;text-align:center;margin:40px 0 0}
       <h2 style="margin-top:0">Your details</h2>
       <label for="f-name">Name (we call this at the counter)</label>
       <input id="f-name" type="text" autocomplete="name" maxlength="80">
-      <label for="f-mobile">Mobile number</label>
+      <label for="f-mobile">Mobile number (WhatsApp, for order updates)</label>
       <input id="f-mobile" type="tel" autocomplete="tel" placeholder="0917 123 4567" maxlength="30">
       <label for="f-email">Email</label>
       <input id="f-email" type="email" autocomplete="email" maxlength="160">
       <label for="f-note">Note for the kitchen (optional)</label>
       <textarea id="f-note" maxlength="300" placeholder="No ice, extra spicy…"></textarea>
-      <label class="check"><input type="checkbox" id="f-wa" checked> Send me order updates on WhatsApp</label>
       <label class="check"><input type="checkbox" id="f-consent" checked> Okay for Steven Lava to keep in touch</label>
     </div>
     <div class="card" id="pay-choice">
@@ -259,7 +258,7 @@ $("back").onclick = () => { show("v-menu"); renderMenu(); };
 $("place").onclick = async () => {
   const body = {
     name: $("f-name").value, mobile: $("f-mobile").value, email: $("f-email").value, note: $("f-note").value,
-    waUpdates: $("f-wa").checked, consent: $("f-consent").checked,
+    waUpdates: true, consent: $("f-consent").checked,
     payVia: document.querySelector("input[name=pay]:checked").value,
     items: Object.entries(cart).map(([id, qty]) => ({ id, qty })),
     comp: COMP ? COMP.code : undefined,
