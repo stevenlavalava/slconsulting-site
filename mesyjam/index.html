@@ -126,7 +126,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;margin:40px 0 0}
       <label class="check"><input type="checkbox" id="f-wa" checked> Send me order updates on WhatsApp</label>
       <label class="check"><input type="checkbox" id="f-consent" checked> Okay for Steven Lava to keep in touch</label>
     </div>
-    <div class="card">
+    <div class="card" id="pay-choice">
       <h2 style="margin-top:0">How will you send the GCash screenshot?</h2>
       <div class="choice">
         <label><input type="radio" name="pay" value="upload" checked><span>Upload it here<small>Right on this page</small></span></label>
@@ -195,6 +195,7 @@ const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem("mesy:" + k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem("mesy:" + k, JSON.stringify(v)); } catch {} },
 };
+let COMP = null; // covered-meal link: { code, name, remaining }
 let MENU = [], S = {}, cart = store.get("cart", {}), current = null, pollT = null, lastStatus = null;
 
 function show(v) {
@@ -248,6 +249,9 @@ $("go-co").onclick = () => {
   $("sum").innerHTML = sumHtml(items, withSc(subtotal()));
   const me = store.get("me", {});
   $("f-name").value ||= me.name || ""; $("f-mobile").value ||= me.mobile || ""; $("f-email").value ||= me.email || "";
+  if (COMP && !$("f-name").value) $("f-name").value = COMP.name;
+  $("pay-choice").classList.toggle("hidden", !!COMP);
+  $("place").textContent = COMP ? "Place order (covered by Steven)" : "Place order";
   $("co-err").textContent = "";
   show("v-checkout");
 };
@@ -258,6 +262,7 @@ $("place").onclick = async () => {
     waUpdates: $("f-wa").checked, consent: $("f-consent").checked,
     payVia: document.querySelector("input[name=pay]:checked").value,
     items: Object.entries(cart).map(([id, qty]) => ({ id, qty })),
+    comp: COMP ? COMP.code : undefined,
   };
   if (!body.name.trim() || !body.mobile.trim() || !body.email.trim()) { $("co-err").textContent = "Name, mobile number and email are all needed."; return; }
   $("place").disabled = true; $("co-err").textContent = "";
@@ -268,7 +273,7 @@ $("place").onclick = async () => {
     cart = {}; store.set("cart", cart); $("f-note").value = "";
     current = { ref: r.ref, num: r.num, total: r.total, items: r.items, payVia: body.payVia };
     history.replaceState(null, "", "?o=" + r.ref);
-    openPay();
+    if (r.covered) { loadComp(COMP.code); toStatus(); } else openPay();
   } catch (e) { $("co-err").textContent = e.message; }
   $("place").disabled = false;
 };
@@ -322,7 +327,7 @@ function shrink(file) {
 }
 
 const STEPS = [
-  ["checking", "Checking your GCash payment"],
+  ["checking", "Checking your GCash payment", "Covered by Steven"],
   ["confirmed", "Payment confirmed, sent to the counter"],
   ["accepted", "The cafe is preparing your order"],
   ["ready", "Ready! Pick it up at the counter"],
@@ -334,7 +339,8 @@ function renderStatus(o) {
   $("s-sum").innerHTML = sumHtml(o.items, o.total) + (o.note ? `<p class="muted" style="font-size:14px">Note: ${esc(o.note)}</p>` : "");
   const order = ["awaiting_payment", "checking", "confirmed", "accepted", "ready", "picked_up"];
   const at = order.indexOf(o.status);
-  $("s-steps").innerHTML = STEPS.map(([k, label]) => {
+  $("s-steps").innerHTML = STEPS.map(([k, label, coveredLabel]) => {
+    if (o.covered && coveredLabel) label = coveredLabel;
     const i = order.indexOf(k);
     const cls = at >= i ? "done" : (i === at + 1 ? "now" : "");
     return `<li class="${cls}"><span class="dot"></span><span>${label}</span></li>`;
@@ -387,6 +393,14 @@ async function renderMine() {
   $("mine").classList.remove("hidden");
 }
 
+async function loadComp(code) {
+  try {
+    const c = await api(`/comp/${encodeURIComponent(code)}`);
+    COMP = { code: code.toUpperCase(), ...c }; store.set("comp", COMP.code);
+    $("notice").textContent = `Covered by Steven for ${c.name}` + (c.remaining === null ? ". Order whatever you like!" : `: Php ${c.remaining} left to use.`);
+    $("notice").classList.remove("hidden");
+  } catch { COMP = null; store.set("comp", null); }
+}
 (async function init() {
   try {
     const r = await api("/menu");
@@ -395,6 +409,8 @@ async function renderMine() {
     if (S.notice) { $("notice").textContent = S.notice; $("notice").classList.remove("hidden"); }
     if (S.open === false) { $("notice").textContent = "Ordering is closed for now."; $("notice").classList.remove("hidden"); }
   } catch { $("menu").innerHTML = '<p class="err">Can\'t reach the menu. Check your connection and refresh.</p>'; }
+  const compCode = new URLSearchParams(location.search).get("c") || store.get("comp", null);
+  if (compCode) await loadComp(compCode);
   const ref = new URLSearchParams(location.search).get("o");
   if (ref) {
     try {
