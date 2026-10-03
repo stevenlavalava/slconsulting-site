@@ -214,10 +214,11 @@ const withSc = n => Math.round(n * (1 + (S.serviceChargePct || 0) / 100) * 100) 
 
 function renderMenu() {
   if (!MENU.length) { $("menu").innerHTML = '<p class="muted">The menu is being set up. Check back in a minute.</p>'; return; }
-  const cats = [...new Set(MENU.map(m => m.cat || "Menu"))];
+  const shown = MENU.filter(m => m.available !== false); // sold-out items are hidden, not struck through
+  const cats = [...new Set(shown.map(m => m.cat || "Menu"))];
   const cid = c => "c-" + c.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   $("menu").innerHTML = (cats.length > 2 ? `<nav class="cats">${cats.map(c => `<a href="#${cid(c)}">${esc(c)}</a>`).join("")}</nav>` : "")
-    + cats.map(c => `<h2 id="${cid(c)}">${esc(c)}</h2>` + MENU.filter(m => (m.cat || "Menu") === c).map(m => {
+    + cats.map(c => `<h2 id="${cid(c)}">${esc(c)}</h2>` + shown.filter(m => (m.cat || "Menu") === c).map(m => {
     const q = cart[m.id] || 0, out = m.available === false;
     return `<div class="item ${out ? "out" : ""}"><div class="t"><div class="n">${esc(m.name)}</div>${m.desc ? `<div class="d">${esc(m.desc)}</div>` : ""}<div class="p">${php(m.price)}</div></div>
       ${out ? '<span class="soldout">Sold out</span>' : `<div class="step">${q ? `<button data-id="${esc(m.id)}" data-d="-1" aria-label="Remove one">−</button><span class="q">${q}</span>` : ""}<button class="add" data-id="${esc(m.id)}" data-d="1" aria-label="Add one">+</button></div>`}</div>`;
