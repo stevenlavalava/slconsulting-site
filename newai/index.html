@@ -229,6 +229,92 @@
     .section-head h2 { font-size: 1.35rem; }
     #result .your-code { font-size: 2.4rem; padding: 20px; }
   }
+
+  /* Your apps — icon picker */
+  .app-group-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin: 4px 0 10px;
+  }
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .app-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 14px 6px 12px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.76rem;
+    line-height: 1.25;
+    color: var(--stone);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .app-tile:hover { border-color: var(--warm); }
+  .app-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .app-tile[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: #fbf3ee;
+    box-shadow: 0 0 0 1px var(--accent);
+    color: var(--ink);
+  }
+  .app-tile[aria-pressed="true"]::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .app-icon {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    background-color: var(--c);
+    -webkit-mask: var(--i) center / contain no-repeat;
+    mask: var(--i) center / contain no-repeat;
+  }
+  .app-icon.letter {
+    -webkit-mask: none;
+    mask: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .app-count { font-size: 0.82rem; color: var(--accent); margin: -8px 0 18px; min-height: 1.2em; }
+  @media (max-width: 480px) {
+    .app-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  }
+  .ask-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .ask-cards:empty { display: none; }
+  .ask-card { display: flex; align-items: flex-start; gap: 10px; background: #fff; border: 1px solid var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
+  .ask-card .ask-n { color: var(--accent); font-weight: 600; min-width: 1.4em; }
+  .ask-card .ask-t { flex: 1; word-break: break-word; }
+  .ask-card button { border: 0; background: none; color: #8b8377; font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
+  .ask-card button:hover { color: var(--accent); }
+  .ask-row { display: flex; gap: 8px; }
+  .ask-row input { flex: 1; min-width: 0; }
+  .ask-add { border: 1px solid var(--accent); background: none; color: var(--accent); border-radius: 8px; padding: 0 16px; font-size: 15px; cursor: pointer; }
+  .ask-add:hover { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
@@ -334,8 +420,8 @@
     </div>
 
     <div class="question">
-      <label class="required">What do you call your AI's drop folder?</label>
-      <p class="hint">This is where you drop files for the AI to read or work on. Free text. No defaults.</p>
+      <label class="required">What do you call the folder where your files live?</label>
+      <p class="hint">PDFs, spreadsheets, photos, documents: the files your AI reads and works on. Free text. No defaults.</p>
       <input type="text" name="drop_folder_name" required>
     </div>
 
@@ -347,13 +433,18 @@
     </div>
 
     <div class="question">
-      <label class="required">Top 3 things you want help with</label>
-      <p class="hint">Specific is better. "Drafting follow-up emails to suppliers" beats "communication."</p>
-      <textarea name="top_asks" required placeholder="1.&#10;2.&#10;3."></textarea>
+      <label class="required">Things you want help with</label>
+      <p class="hint">Type one, press Enter, and it becomes a card. Add as many as you like. Specific is better: "Drafting follow-up emails to suppliers" beats "communication."</p>
+      <div id="askCards" class="ask-cards"></div>
+      <div class="ask-row">
+        <input type="text" id="askInput" required placeholder="e.g., Chase unpaid invoices every Friday" autocomplete="off">
+        <button type="button" id="askAdd" class="ask-add">Add</button>
+      </div>
+      <input type="hidden" name="top_asks" id="topAsks">
     </div>
 
     <div class="question">
-      <label>What kinds of files would you drop into your AI's folder?</label>
+      <label>What kinds of files would you keep in that folder?</label>
       <p class="hint">Check all that apply.</p>
       <div class="checkbox-group">
         <label><input type="checkbox" name="files_typical" value="reports"> Reports</label>
@@ -397,9 +488,32 @@
       <textarea name="first_data_question" placeholder="e.g., 'Which customers are more than 30 days late this week?'"></textarea>
     </div>
 
-    <!-- ── F. About you, the person ── -->
+
+    <!-- ── F. Your apps ── -->
     <div class="section-head">
       <div class="section-num">Section F</div>
+      <h2>Your apps</h2>
+      <p class="section-blurb">Tap every app you use. Your AI can be connected to these, so it can read, file and draft where your work already happens.</p>
+    </div>
+
+    <div class="question">
+      <p class="app-group-label">Already connected for other PAIA owners</p>
+      <div class="app-grid" id="apps-proven"></div>
+
+      <p class="app-group-label">Also possible (they publish an API)</p>
+      <div class="app-grid" id="apps-possible"></div>
+
+      <p class="app-count" id="app-count" aria-live="polite"></p>
+      <input type="hidden" name="integrations" id="integrations">
+
+      <label for="integrations_other">Another app you use?</label>
+      <p class="hint">Name it. If it has public API docs online, we can most likely connect it.</p>
+      <input type="text" name="integrations_other" id="integrations_other" placeholder="e.g., Loyverse POS, Bloom Growth, our in-house system">
+    </div>
+
+    <!-- ── G. About you, the person ── -->
+    <div class="section-head">
+      <div class="section-num">Section G</div>
       <h2>About you, the person</h2>
       <p class="section-blurb">So your AI knows you, not just your job.</p>
     </div>
@@ -432,9 +546,9 @@
       <textarea name="recent_memory"></textarea>
     </div>
 
-    <!-- ── G. First Notebook ── -->
+    <!-- ── H. First Notebook ── -->
     <div class="section-head">
-      <div class="section-num">Section G</div>
+      <div class="section-num">Section H</div>
       <h2>Your first Notebook</h2>
       <p class="section-blurb">Drop everything that's on your mind right now. Tasks, thoughts, ideas, worries. Don't filter. Your AI's first job is to help you sort it.</p>
     </div>
@@ -475,6 +589,96 @@
     return s;
   }
 
+  // ── Your apps (icon picker) ──
+  // Icons: Simple Icons, pinned. Brands it no longer carries get a letter tile.
+  var ICONS = 'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/';
+  var APPS_PROVEN = [
+    ['Gmail', 'gmail', '#EA4335'],
+    ['WhatsApp', 'whatsapp', '#25D366'],
+    ['Telegram', 'telegram', '#26A5E4'],
+    ['Google Sheets', 'googlesheets', '#34A853'],
+    ['Google Drive', 'googledrive', '#4285F4'],
+    ['Google Docs', 'googledocs', '#4285F4'],
+    ['Google Slides', 'googleslides', '#FBBC04'],
+    ['Google Forms', 'googleforms', '#7248B9'],
+    ['Google Calendar', 'googlecalendar', '#4285F4'],
+    ['Apps Script', 'googleappsscript', '#4285F4'],
+    ['Outlook / Microsoft 365', '', '#0078D4', 'O'],
+    ['Facebook Pages', 'facebook', '#0866FF'],
+    ['Instagram (business)', 'instagram', '#E4405F'],
+    ['Slack', 'slack', '#4A154B'],
+    ['Asana', 'asana', '#F06A6A'],
+    ['Canva', 'canva', '#00C4CC'],
+    ['Apple Notes', '', '#E6B800', 'N'],
+    ['Samsung Notes', '', '#1428A0', 'S'],
+    ['SAP', 'sap', '#0FAAFF'],
+    ['convo.run', '', '#19150f', 'c'],
+    ['Messenger (Facebook Page)', 'messenger', '#00B2FF'],
+    ['Zoom', 'zoom', '#0B5CFF'],
+    ['Notion', 'notion', '#000000'],
+    ['Airtable', 'airtable', '#18BFFF'],
+    ['Odoo', 'odoo', '#714B67'],
+    ['Shopify', 'shopify', '#7AB55C'],
+    ['Discord', 'discord', '#5865F2']
+  ];
+  var APPS_POSSIBLE = [
+    ['Google Meet', 'googlemeet', '#00897B'],
+    ['OneDrive', '', '#0078D4', 'D'],
+    ['Microsoft Teams', '', '#6264A7', 'T'],
+    ['Dropbox', 'dropbox', '#0061FF'],
+    ['Trello', 'trello', '#0052CC'],
+    ['ClickUp', 'clickup', '#7B68EE'],
+    ['Todoist', 'todoist', '#E44332'],
+    ['HubSpot', 'hubspot', '#FF7A59'],
+    ['Zoho', 'zoho', '#E42527'],
+    ['Xero', 'xero', '#13B5EA'],
+    ['QuickBooks', 'quickbooks', '#2CA01C'],
+    ['Lazada', '', '#0F146D', 'L'],
+    ['Shopee', 'shopee', '#EE4D2D'],
+    ['PayMongo', '', '#24B47E', 'P'],
+    ['Xendit', 'xendit', '#4573FF'],
+    ['Stripe', 'stripe', '#635BFF'],
+    ['Calendly', 'calendly', '#006BFF']
+  ];
+  var picked = [];
+  function syncApps() {
+    document.getElementById('integrations').value = picked.join(', ');
+    var n = picked.length;
+    document.getElementById('app-count').textContent = n ? n + (n === 1 ? ' app picked' : ' apps picked') : '';
+  }
+  function buildTiles(list, el) {
+    list.forEach(function (a) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'app-tile';
+      b.setAttribute('aria-pressed', 'false');
+      var ic = document.createElement('span');
+      ic.setAttribute('aria-hidden', 'true');
+      ic.style.setProperty('--c', a[2]);
+      if (a[1]) {
+        ic.className = 'app-icon';
+        ic.style.setProperty('--i', 'url("' + ICONS + a[1] + '.svg")');
+      } else {
+        ic.className = 'app-icon letter';
+        ic.style.background = a[2];
+        ic.textContent = a[3];
+      }
+      var t = document.createElement('span');
+      t.textContent = a[0];
+      b.appendChild(ic);
+      b.appendChild(t);
+      b.addEventListener('click', function () {
+        var on = b.getAttribute('aria-pressed') !== 'true';
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) picked.push(a[0]); else picked.splice(picked.indexOf(a[0]), 1);
+        syncApps();
+      });
+      el.appendChild(b);
+    });
+  }
+  buildTiles(APPS_PROVEN, document.getElementById('apps-proven'));
+  buildTiles(APPS_POSSIBLE, document.getElementById('apps-possible'));
+
   // ── Conditional fields ──
   document.querySelector('input[name="persona"][value="other"]').addEventListener('change', function() {
     document.querySelector('input[name="persona_other"]').style.display = this.checked ? 'block' : 'none';
@@ -486,8 +690,35 @@
   });
 
   // ── Submit ──
+  var asks = [];
+  var askInput = document.getElementById('askInput');
+  function renderAsks() {
+    var box = document.getElementById('askCards');
+    box.innerHTML = '';
+    asks.forEach(function (t, i) {
+      var c = document.createElement('div');
+      c.className = 'ask-card';
+      c.innerHTML = '<span class="ask-n">' + (i + 1) + '.</span><span class="ask-t"></span><button type="button" aria-label="Remove">&times;</button>';
+      c.querySelector('.ask-t').textContent = t;
+      c.querySelector('button').onclick = function () { asks.splice(i, 1); renderAsks(); };
+      box.appendChild(c);
+    });
+    document.getElementById('topAsks').value = asks.map(function (t, i) { return (i + 1) + '. ' + t; }).join('\n');
+    askInput.required = asks.length === 0;
+  }
+  function addAsk() {
+    var t = askInput.value.trim();
+    if (!t) return;
+    asks.push(t); askInput.value = ''; renderAsks(); askInput.focus();
+  }
+  askInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); addAsk(); }
+  });
+  document.getElementById('askAdd').onclick = addAsk;
+
   document.getElementById('form').addEventListener('submit', function(e) {
     e.preventDefault();
+    addAsk();
 
     var btn = this.querySelector('.submit-btn');
     btn.textContent = 'Submitting…';
@@ -507,6 +738,11 @@
       data.persona = data.persona_other;
     }
     delete data.persona_other;
+
+    if (data.integrations_other) {
+      data.integrations = data.integrations ? data.integrations + ', Other: ' + data.integrations_other : 'Other: ' + data.integrations_other;
+    }
+    delete data.integrations_other;
 
     var code = generateCode();
     data.code = code;
