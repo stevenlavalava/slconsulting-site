@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Rico code</title>
+<style>
+  :root { --cream:#f6f2e8; --ink:#19150f; --stone:#4a443c; --rule:#ddd5c4; --card:#fbf8f0; --accent:#c25a2c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Inter',sans-serif; background:var(--cream); color:var(--ink); line-height:1.5; }
+  .wrap { max-width:640px; margin:0 auto; padding:40px 16px; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  p { color:var(--stone); margin:0 0 18px; font-size:15px; }
+  .id { background:var(--card); border:1px solid var(--rule); border-left:3px solid var(--accent); padding:16px; font-family:ui-monospace,Menlo,monospace; font-size:17px; word-break:break-all; user-select:all; -webkit-user-select:all; }
+  button { margin-top:14px; width:100%; padding:14px; font-size:16px; font-weight:600; background:var(--ink); color:var(--cream); border:0; border-radius:6px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Syncthing Device ID: Rico's laptop</h1>
+<p>Paste this into Syncthing on Jesiella's PC, under Add Remote Device.</p>
+<div class="id" id="code">KK36VCW-HLAW5QB-EJXYWUX-6BSVHL3-RXSNP5I-AFAFXZQ-RL5WKPZ-SP2P6QJ</div>
+<button id="btn" onclick="navigator.clipboard.writeText(document.getElementById('code').textContent.trim()).then(()=>{this.textContent='Copied'}).catch(()=>{this.textContent='Tap the code above to select it'})">Copy</button>
+</div>
+</body>
+</html>
