@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>PAIA Users Gathering</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Bodoni+Moda:opsz,wght@6..96,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0b;--ink:#f2f2f2;--mute:#8a8a8a;--line:#3a3a3a}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;font-family:Baskerville,"Libre Baskerville",serif}
+#field{position:fixed;inset:0}
+.n{position:absolute;white-space:nowrap;font-family:Didot,"Bodoni Moda",serif;letter-spacing:.3em;text-transform:uppercase;color:var(--ink);opacity:0;animation:drift linear forwards}
+@keyframes drift{0%{opacity:0;transform:translateY(20px)}12%{opacity:var(--o)}85%{opacity:var(--o)}100%{opacity:0;transform:translateY(-40px)}}
+.c{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.box{background:rgba(11,11,11,.82);padding:5vh 7vw;border:1px solid var(--line);box-shadow:10px 10px 0 #1f1f1f}
+.mark{font-family:Didot,"Bodoni Moda",serif;letter-spacing:.32em;font-size:clamp(22px,3.4vw,64px)}
+.tag{letter-spacing:.3em;font-size:clamp(10px,1vw,18px);color:var(--mute);margin-top:1.2vh}
+.dr{border-bottom:4px double var(--ink);width:100%;margin:2.4vh 0 3vh}
+h1{font-weight:400;font-style:italic;font-size:clamp(28px,4.6vw,88px);line-height:1.1}
+.time{margin-top:3vh;font-size:clamp(14px,1.6vw,30px);letter-spacing:.12em}
+.time b{font-weight:700}
+.hint{margin-top:2.6vh;font-size:clamp(12px,1.25vw,24px);color:#cfcfcf;font-style:italic;min-height:1.6em;transition:opacity .8s}
+</style></head><body>
+<div id="field"></div>
+<div class="c"><div class="box">
+<div class="mark">PAIA USERS GATHERING</div>
+<div class="tag">CEBU · ABASERIA · NOVEMBER 7, 2026</div>
+<div class="dr"></div>
+<h1>The PAIAs are arriving.</h1>
+<div class="time" id="time"></div>
+<div class="hint" id="hint"></div>
+</div></div>
+<script>
+const names=["KAI","R2D2","Tala","Cipher","Sophia","Mila","Dex","Sendo","Atlas","Remy","Maihlo","Argus","Sunday","Gimli","Bilbo","Jarvis","Castle","Sunny","Stark","Leo","Brie","Bubble","Mímir","Navigator","Maiko","Elrond","Jeff","Leon","Totoro","Igris"];
+const f=document.getElementById('field');let i=0;
+function spawn(){const e=document.createElement('div');e.className='n';e.textContent=names[i++%names.length];
+const s=14+Math.random()*30;e.style.fontSize=s+'px';e.style.left=(3+Math.random()*82)+'vw';e.style.top=(4+Math.random()*88)+'vh';
+e.style.setProperty('--o',(0.18+Math.random()*0.3).toFixed(2));const d=9+Math.random()*7;e.style.animationDuration=d+'s';
+f.appendChild(e);setTimeout(()=>e.remove(),d*1000);}
+for(let k=0;k<10;k++)setTimeout(spawn,k*500);setInterval(spawn,900);
+const hints=["Get your name tag from Sia: your PAIA's name, or FRIEND OF PAIA.","Grab a resonance card. You'll want a pen.","Lunch is served. The PAIAs take the stage at one o'clock.","Have remote control ready on your PAIA.","Every PAIA here made its own 90-second video."];
+let h=0;const he=document.getElementById('hint');function nextHint(){he.style.opacity=0;setTimeout(()=>{he.textContent=hints[h++%hints.length];he.style.opacity=1},800)}nextHint();setInterval(nextHint,7000);
+function tick(){const now=new Date();const pht=new Date(now.getTime()+(now.getTimezoneOffset()+480)*60000);
+const start=new Date(pht);start.setHours(13,0,0,0);let ms=start-pht;const t=document.getElementById('time');
+if(ms>0){const m=Math.floor(ms/60000),s=Math.floor(ms/1000)%60;t.innerHTML='The program starts at <b>1:00 PM</b> &nbsp;·&nbsp; '+m+':'+String(s).padStart(2,'0');}
+else t.innerHTML='<b>We’re starting now.</b>';}
+tick();setInterval(tick,1000);
+</script></body></html>
