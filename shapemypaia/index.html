@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shape your PAIA</title>
+<meta name="description" content="A short questionnaire. Bilbo sends back how a Personal AI Assistant should be shaped for you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f2e8;
+    --paper: #ede7d7;
+    --ink: #19150f;
+    --stone: #4a443c;
+    --warm: #8a7f70;
+    --rule: #c8c0ad;
+    --rule-fine: #d8d2c0;
+    --accent: #8a3214;
+    --accent-soft: #c25a2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 18px;
+  }
+  h1.title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--stone);
+    margin-bottom: 32px;
+  }
+  hr.divider {
+    border: 0;
+    border-top: 0.5px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  .section-head {
+    margin: 48px 0 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-fine);
+  }
+  .section-head .section-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 50, "wght" 380;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .section-head .section-blurb {
+    font-size: 0.95rem;
+    color: var(--stone);
+  }
+
+  .question { margin-bottom: 28px; }
+  label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  label.required::after {
+    content: ' *';
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--warm);
+    margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.large { min-height: 160px; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    font-weight: 400;
+    font-size: 0.94rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .radio-group input, .checkbox-group input {
+    accent-color: var(--accent);
+  }
+  .other-input { margin-top: 8px; }
+
+  .submit-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 16px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Result page */
+  #result { display: none; text-align: center; padding-top: 40px; }
+  #result h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "wght" 360;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  #result h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100, "wght" 360;
+  }
+  #result .your-code {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 500;
+    font-size: 3.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding: 28px;
+    border: 1px dashed var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.4);
+  }
+  #result .next-step {
+    font-size: 0.95rem;
+    color: var(--stone);
+    margin-bottom: 24px;
+  }
+  #result .next-step strong { color: var(--ink); }
+  #result .status-msg {
+    font-size: 0.86rem;
+    color: var(--warm);
+    margin-top: 16px;
+  }
+  #result .status-msg.warning {
+    color: var(--accent);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--rule);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--warm);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 24px 48px; }
+    h1.title { font-size: 2rem; }
+    .section-head h2 { font-size: 1.35rem; }
+    #result .your-code { font-size: 2.4rem; padding: 20px; }
+  }
+
+  /* Your apps — icon picker */
+  .app-group-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin: 4px 0 10px;
+  }
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .app-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 14px 6px 12px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.76rem;
+    line-height: 1.25;
+    color: var(--stone);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .app-tile:hover { border-color: var(--warm); }
+  .app-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .app-tile[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: #fbf3ee;
+    box-shadow: 0 0 0 1px var(--accent);
+    color: var(--ink);
+  }
+  .app-tile[aria-pressed="true"]::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .app-icon {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    background-color: var(--c);
+    -webkit-mask: var(--i) center / contain no-repeat;
+    mask: var(--i) center / contain no-repeat;
+  }
+  .app-icon.letter {
+    -webkit-mask: none;
+    mask: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .app-count { font-size: 0.82rem; color: var(--accent); margin: -8px 0 18px; min-height: 1.2em; }
+  @media (max-width: 480px) {
+    .app-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  }
+  .ask-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .ask-cards:empty { display: none; }
+  .ask-card { display: flex; align-items: flex-start; gap: 10px; background: #fff; border: 1px solid var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
+  .ask-card .ask-n { color: var(--accent); font-weight: 600; min-width: 1.4em; }
+  .ask-card .ask-t { flex: 1; word-break: break-word; }
+  .ask-card button { border: 0; background: none; color: #8b8377; font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
+  .ask-card button:hover { color: var(--accent); }
+  .ask-row { display: flex; gap: 8px; }
+  .ask-row input { flex: 1; min-width: 0; }
+  .ask-add { border: 1px solid var(--accent); background: none; color: var(--accent); border-radius: 8px; padding: 0 16px; font-size: 15px; cursor: pointer; }
+  .ask-add:hover { background: var(--accent); color: #fff; }
+  .done-card { border-top: 2px solid var(--ink); padding-top: 18px; margin-top: 10px; }
+  .done-card p { font-size: 17px; line-height: 1.55; color: var(--stone); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .chips label { border:1px solid var(--rule); background:#fff; padding:8px 13px; border-radius:20px; font-size:15px; cursor:pointer; display:flex; gap:7px; align-items:center; }
+  .chips input { accent-color: var(--accent); }
+  input[type="tel"] { width:100%; padding:12px 14px; border:1px solid var(--rule); border-radius:6px; font-size:0.95rem; font-family:"Inter",sans-serif; background:#fff; color:var(--ink); outline:none; }
+  .err { color: var(--accent); font-size: 15px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<!-- Generated by Bilbo 2026-11-11 (session s1110-1403). Steven's Techpreneur Summit 2026 promise: "Bilbo will send you a tool to evaluate how your
+     own Personal AI Assistant should be shaped for your exact situation." Posts to the site's contact relay (emails stevenlava@gmail.com,
+     offering = "Shape your PAIA"); Bilbo reads each one and sends back the person's one-page result. -->
+<div id="form-page" class="container">
+  <div class="eyebrow">Techpreneur Summit 2026 · Steven Lava</div>
+  <h1 class="title">Shape your <em>Personal AI Assistant.</em></h1>
+  <p class="lede">Six short questions, about five minutes. Bilbo, Steven's PAIA, reads your answers and sends you one page: how a PAIA should be shaped for your exact situation, with what real PAIAs already do for people like you.</p>
+  <hr class="divider">
+
+  <form id="form">
+    <div class="section-head">
+      <div class="section-num">You</div>
+      <h2>Where to send your page</h2>
+    </div>
+    <div class="question">
+      <label class="required">Your name</label>
+      <input type="text" name="name" required autocomplete="name">
+    </div>
+    <div class="question">
+      <label class="required">Your email</label>
+      <p class="hint">Your page arrives here.</p>
+      <input type="email" name="email" required autocomplete="email">
+    </div>
+    <div class="question">
+      <label>Your mobile number</label>
+      <p class="hint">Optional.</p>
+      <input type="tel" name="mobile" placeholder="09XX XXX XXXX" autocomplete="tel">
+    </div>
+
+    <div class="section-head">
+      <div class="section-num">Your work</div>
+      <h2>Six questions</h2>
+      <p class="section-blurb">Short answers are fine. Specific beats general.</p>
+    </div>
+    <div class="question">
+      <label class="required">1. What do you do?</label>
+      <p class="hint">Your role and the business, in a line. "I run 3 bakery branches" beats "business owner".</p>
+      <input type="text" name="role" required>
+    </div>
+    <div class="question">
+      <label class="required">2. Where do your messages and your work live?</label>
+      <p class="hint">Tap all that apply.</p>
+      <div class="chips" id="where">
+        <label><input type="checkbox" value="WhatsApp"> WhatsApp</label>
+        <label><input type="checkbox" value="Viber"> Viber</label>
+        <label><input type="checkbox" value="iMessage"> iMessage</label>
+        <label><input type="checkbox" value="Messenger"> Messenger</label>
+        <label><input type="checkbox" value="Telegram"> Telegram</label>
+        <label><input type="checkbox" value="Gmail"> Gmail</label>
+        <label><input type="checkbox" value="Outlook"> Outlook</label>
+        <label><input type="checkbox" value="Google Calendar"> Google Calendar</label>
+        <label><input type="checkbox" value="Google Sheets"> Google Sheets</label>
+        <label><input type="checkbox" value="Excel"> Excel</label>
+        <label><input type="checkbox" value="QuickBooks / Xero"> QuickBooks / Xero</label>
+        <label><input type="checkbox" value="ERP (SAP, NetSuite…)"> ERP (SAP, NetSuite…)</label>
+        <label><input type="checkbox" value="POS"> POS</label>
+        <label><input type="checkbox" value="Paper"> Paper</label>
+      </div>
+      <input type="text" class="other-input" name="where_other" placeholder="Anything else?" style="margin-top:10px">
+    </div>
+    <div class="question">
+      <label class="required">3. What ate your week last week?</label>
+      <p class="hint">The work that took the most hours, or the most energy.</p>
+      <textarea name="week" rows="3" required></textarea>
+    </div>
+    <div class="question">
+      <label class="required">4. What are you carrying in your head that you're afraid to drop?</label>
+      <p class="hint">Promises, follow-ups, numbers, people, deadlines.</p>
+      <textarea name="head" rows="3" required></textarea>
+    </div>
+    <div class="question">
+      <label class="required">5. If you had a PAIA tomorrow, what's the first thing you'd hand it?</label>
+      <textarea name="first" rows="2" required></textarea>
+    </div>
+    <div class="question">
+      <label class="required">6. What should an assistant never do without your go?</label>
+      <p class="hint">Your one rule.</p>
+      <input type="text" name="rule" required>
+    </div>
+
+    <button type="submit" class="submit-btn" id="go">Send to Bilbo</button>
+    <p class="err" id="err"></p>
+  </form>
+</div>
+
+<div id="result" class="container" style="display:none">
+  <div class="eyebrow">Received</div>
+  <h1 class="title">Thank you, <em id="who">friend</em>.</h1>
+  <div class="done-card">
+    <p>Bilbo has your answers. Your page, "Your PAIA, shaped for you", comes to <b id="where-to"></b>.</p>
+    <p>Thank you for sharing your precious time.</p>
+  </div>
+</div>
+
+<div class="footer">SL Consulting · stevenlava.com</div>
+
+<script>
+  var RELAY = "https://script.google.com/macros/s/AKfycbzepSRwNeNpiYzkAn29b2rgA9M3Z6XKdot4uBcJXO0LqSma-bUjRXVGkVbTnQAqQJ0/exec";
+  document.getElementById('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, err = document.getElementById('err'), btn = document.getElementById('go');
+    var where = [].slice.call(document.querySelectorAll('#where input:checked')).map(function (x) { return x.value; });
+    if (f.where_other.value.trim()) where.push(f.where_other.value.trim());
+    if (!where.length) { err.textContent = 'Question 2: tap at least one place your work lives.'; return; }
+    err.textContent = ''; btn.disabled = true; btn.textContent = 'Sending…';
+    var d = { offering: 'Shape your PAIA', name: f.name.value.trim(), email: f.email.value.trim(), mobile: f.mobile.value.trim(),
+              role: f.role.value.trim(), workspace: where.join(', '), 'What ate their week': f.week.value.trim(),
+              'Carrying in their head': f.head.value.trim(), 'First thing to hand a PAIA': f.first.value.trim(),
+              'Never without their go': f.rule.value.trim(), source: 'Techpreneur Summit 2026', sent_at: new Date().toISOString() };
+    fetch(RELAY, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (!j || !j.ok) throw new Error('relay'); done(d); })
+      .catch(function () { btn.disabled = false; btn.textContent = 'Send to Bilbo'; err.textContent = 'That did not go through. Please try again in a moment.'; });
+  });
+  function done(d) {
+    document.getElementById('who').textContent = d.name.split(' ')[0] || 'friend';
+    document.getElementById('where-to').textContent = d.email;
+    document.getElementById('form-page').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
